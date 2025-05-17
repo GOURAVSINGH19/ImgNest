@@ -1,4 +1,5 @@
 📁 File Management System
+
 A modern, secure, and responsive file management system built with Next.js 14. Features include folder organization, secure file uploads, trash management, and a beautiful UI.
 
 🚀 Tech Stack
@@ -58,7 +59,7 @@ CLERK_SECRET_KEY="your_clerk_secret_key"
 
 Clone the repo
 ```
-git clone https://github.com/yourusername/file-management-system.git
+git clone https://github.com/GOURAVSINGH19/ImgNest.git
 cd ImgNest
 Install dependencies 
 ```
@@ -87,6 +88,7 @@ Visit http://localhost:3000
 
 
 ✨ Features
+```
 📂 Organize files in folders
 ⭐ Star your favorite files
 🗑️ Trash system with undo option
@@ -97,6 +99,7 @@ Visit http://localhost:3000
 👤 Auth & sessions powered by Clerk
 📦 API Endpoints
 📄 File Operations
+```
 ```
 Method	Endpoint	Description
 GET	/api/files	List all files
