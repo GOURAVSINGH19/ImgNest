@@ -2,7 +2,9 @@
 A modern, secure, and responsive file management system built with Next.js 14. Features include folder organization, secure file uploads, trash management, and a beautiful UI.
 
 🚀 Tech Stack
+
 🖥 Frontend
+```
 Next.js 14 – App Router powered React framework
 
 TypeScript – Type-safe JavaScript
@@ -15,7 +17,9 @@ React Toastify – Toast notifications
 
 Axios – Promise-based HTTP client
 
+```
 🔧 Backend
+```
 Next.js API Routes – Serverless backend
 
 Drizzle ORM – Type-safe SQL ORM
@@ -25,26 +29,18 @@ Neon – Scalable, serverless PostgreSQL database
 ImageKit – Media upload, transformation, and CDN
 
 Clerk – Complete auth solution
-
+```
+```
 📋 Prerequisites
 Before getting started, make sure you have:
-
 Node.js v18.x or higher
-
-npm or yarn
-
 A Neon database account
-
 An ImageKit account
-
 A Clerk account
-
+```
 🔐 Environment Variables
-Create a .env.local file in the root and add the following:
-
-env
-Copy
-Edit
+Create a .env file in the root and add the following:
+```
 # Database
 DATABASE_URL="your_neon_database_url"
 
@@ -56,44 +52,29 @@ NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT="your_imagekit_url_endpoint"
 # Clerk Auth
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="your_clerk_publishable_key"
 CLERK_SECRET_KEY="your_clerk_secret_key"
+
+```
 🛠️ Installation
+
 Clone the repo
-
-bash
-Copy
-Edit
+```
 git clone https://github.com/yourusername/file-management-system.git
-cd file-management-system
-Install dependencies
-
-bash
-Copy
-Edit
+cd ImgNest
+Install dependencies 
+```
+```
 npm install
 # or
 yarn install
-Set up the database
-
-bash
-Copy
-Edit
-npm run db:push
-# or
-yarn db:push
-Run the dev server
-
-bash
-Copy
-Edit
+```
+```
 npm run dev
 # or
 yarn dev
 Visit http://localhost:3000
-
+```
 📁 Project Structure
-csharp
-Copy
-Edit
+```
 ├── app/                    # Next.js app directory
 │   ├── api/                # API routes (server functions)
 │   └── (routes)/           # App routes
@@ -102,25 +83,21 @@ Edit
 ├── lib/                    # Utility functions
 ├── public/                 # Static assets
 └── styles/                 # Global styles (Tailwind)
+```
+
+
 ✨ Features
 📂 Organize files in folders
-
 ⭐ Star your favorite files
-
 🗑️ Trash system with undo option
-
 🔒 Secure file uploads & downloads
-
 📱 Mobile-responsive UI
-
 🔍 Search & filter files
-
 📤 Upload & download with ImageKit
-
 👤 Auth & sessions powered by Clerk
-
 📦 API Endpoints
 📄 File Operations
+```
 Method	Endpoint	Description
 GET	/api/files	List all files
 POST	/api/files	Upload a new file
@@ -133,62 +110,6 @@ Method	Endpoint	Description
 GET	/api/folders	List all folders
 POST	/api/folders	Create a folder
 DELETE	/api/folders/[folderId]	Delete a folder
+```
 
-🚀 Deployment
-Build & Start
-bash
-Copy
-Edit
-npm run build && npm start
-# or
-yarn build && yarn start
-Deploy on Vercel
-Click below to deploy instantly:
-
-
-🤝 Contributing
-Fork the repo
-
-Create your feature branch
-
-bash
-Copy
-Edit
-git checkout -b feature/AmazingFeature
-Commit your changes
-
-bash
-Copy
-Edit
-git commit -m 'Add some AmazingFeature'
-Push to the branch
-
-bash
-Copy
-Edit
-git push origin feature/AmazingFeature
-Open a Pull Request
-
-📄 License
-Licensed under the MIT License.
-
-🙏 Acknowledgments
-Next.js
-
-Drizzle ORM
-
-Neon
-
-Clerk
-
-ImageKit
-
-📚 Learn More
-Next.js Documentation
-
-Drizzle ORM Docs
-
-Clerk Docs
-
-ImageKit Docs
-
+🤝 Like the repo if you like
