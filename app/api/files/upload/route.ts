@@ -6,16 +6,17 @@ import { and, eq, isNull } from "drizzle-orm";
 import ImageKit from "imagekit";
 import { v4 as uuidv4 } from "uuid";
 
-// imagekit credentiales
 const imagekit = new ImageKit({
   publicKey: process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY || "",
   privateKey: process.env.IMAGEKIT_PRIVATE_KEY || "",
   urlEndpoint: process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT || "",
 });
 
-
 export async function POST(request: NextRequest) {
+  console.log("first");
   try {
+    console.log("second");
+
     console.log("Starting file upload process");
     const { userId } = await auth();
     if (!userId) {
@@ -27,11 +28,11 @@ export async function POST(request: NextRequest) {
     const formuserId = formData.get("userId") as string;
     const formparentId = (formData.get("parentId") as string) || null;
 
-    console.log("Received data:", { 
-      fileType: file?.type, 
+    console.log("Received data:", {
+      fileType: file?.type,
       fileSize: file?.size,
       userId: formuserId,
-      parentId: formparentId 
+      parentId: formparentId,
     });
 
     if (formuserId !== userId) {
@@ -47,13 +48,8 @@ export async function POST(request: NextRequest) {
         const [parentFolder] = await db
           .select()
           .from(files)
-          .where(
-            and(
-              eq(files.id, formparentId),
-              eq(files.userId, userId)
-            )
-          );
-        
+          .where(and(eq(files.id, formparentId), eq(files.userId, userId)));
+
         if (!parentFolder) {
           console.log("Parent folder not found:", formparentId);
           return NextResponse.json(
@@ -86,9 +82,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log("third");
+
     try {
-      const buffer = await file.arrayBuffer();
-      const fileBuffer = Buffer.from(buffer);
+      let fileBuffer: Buffer;
+
+      if (typeof file.arrayBuffer === "function") {
+        const buffer = await file.arrayBuffer();
+        fileBuffer = Buffer.from(buffer);
+      } else {
+        console.error(
+          "Uploaded file is not a valid Blob/File. Cannot read buffer."
+        );
+        return NextResponse.json(
+          { error: "Invalid file upload. Try a different file or browser." },
+          { status: 400 }
+        );
+      }
 
       const originalfilename = file.name;
       const fileExtension = originalfilename.split(".").pop() || "";
@@ -102,7 +112,7 @@ export async function POST(request: NextRequest) {
       console.log("Attempting ImageKit upload:", {
         fileName: uniquefilename,
         folderPath,
-        fileSize: fileBuffer.length
+        fileSize: fileBuffer.length,
       });
 
       const Uploadresponse = await imagekit.upload({
@@ -128,21 +138,20 @@ export async function POST(request: NextRequest) {
         isTrash: false,
       };
 
+      console.log("Inserting into DB:", fileData);
+
       const [newFile] = await db.insert(files).values(fileData).returning();
       console.log("File saved to database:", newFile);
       return NextResponse.json(newFile);
     } catch (error) {
       console.error("Error during file processing:", error);
       return NextResponse.json(
-        { error: "Error processing file upload"},
+        { error: "Error processing file upload" },
         { status: 500 }
       );
     }
   } catch (error) {
     console.error("Unexpected error in file upload:", error);
-    return NextResponse.json(
-      { error: "File upload failed" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "File upload failed" }, { status: 500 });
   }
 }

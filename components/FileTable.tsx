@@ -1,12 +1,9 @@
 "use client"
-import React, { act, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import {
-    Clock,
     Star,
     LayoutGrid,
     ChevronUp,
-    Edit2,
-    DeleteIcon,
     StretchHorizontal,
     RefreshCcw,
     Trash,
@@ -19,15 +16,16 @@ import {
 import { Button } from "@heroui/button"
 import { Checkbox } from './ui/checkbox'
 import FileIcon from "./FileIcon"
-import { addToast } from '@heroui/toast'
 import axios from "axios"
 import FileLoadingState from './FileLoadingState'
 import { File as FileType } from "../drizzle/db/schema"
 import FileEmptyState from './FileEmptyState'
 import Badge from './ui/badge'
 import FolderNavigation from './FolderNavigation'
-import ActionButton from './Buttons/ActionButton'
-import ConfirmationModal from './ui/ConfirmationModal'
+import RecentFolderOpen from './RecentFolderOpen'
+import { toast } from 'react-toastify'
+import DeleteRepositoryModal from './DeleteFolder'
+
 
 const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
@@ -58,17 +56,17 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
     const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
     const [Layout, setLayout] = useState();
     const [currentTab, setCurrentTab] = useState(activeTab);
-    // There we use api
-    // const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-    // const [emptyTrashModalOpen, setEmptyTrashModalOpen] = useState(false);
-    // const [selectedFile, setSelectedFile] = useState<FileType | null>(null);
     const [files, setFiles] = useState<FileType[]>([]);
+    const [Onclick, setOnclick] = useState(false);
+
     const starredCount = useMemo(() => {
         return files.filter((file) => file.isStarred && !file.isTrash).length;
     }, [files]);
+
     const TrashCount = useMemo(() => {
         return files.filter((file) => file.isTrash).length;
     }, [files]);
+
 
     const Fetchdata = async () => {
         setLoading(true);
@@ -80,12 +78,7 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
             const res = await axios.get(getUrl)
             setFiles(res.data);
         } catch (error) {
-            addToast({
-                title: 'Error!',
-                description: 'Error in Fetching Data.',
-                color: "warning",
-                timeout: 3000,
-            });
+            toast.error("Error in Fetching Data.")
             console.log("Error in Fetching Data", error)
         } finally {
             setLoading(false);
@@ -105,16 +98,11 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
 
         } catch (error) {
             console.error("Error starring file:", error);
-            addToast({
-                title: 'Error!',
-                description: 'Error in Fetching Data.',
-                color: "warning",
-                timeout: 3000,
-            });
+            toast.error("Error in Fetching Data")
         }
     }
 
-    //Handle Trash file
+    //Handle Trash folder
     const handleTrashFile = async (fileId: string) => {
         try {
             const res = await axios.post(`/api/files/${fileId}/trash`)
@@ -125,12 +113,7 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
             )
         } catch (error) {
             console.error("Error starring file:", error);
-            addToast({
-                title: 'Error!',
-                description: 'Error in Trash Data.',
-                color: "warning",
-                timeout: 3000,
-            });
+            toast.error("Error in Trashing File");
         }
     }
 
@@ -150,11 +133,7 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
         }
         catch (error) {
             console.error("Error Trashing file:", error);
-            addToast({
-                title: "Trashing Failed",
-                description: "We couldn't Trash the file. Please try again later.",
-                color: "danger",
-            });
+            toast.error("We couldn't Trash the file. Please try again later.")
         }
     }
 
@@ -185,11 +164,7 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
             }
         } catch (error) {
             console.error("Error deleting file:", error);
-            addToast({
-                title: "Deletion Failed",
-                description: "We couldn't delete the file. Please try again later.",
-                color: "danger",
-            });
+            toast.error("We couldn't delete the file. Please try again later.")
         }
     };
 
@@ -210,12 +185,8 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
     // }
 
 
-
-
     const openImageViewer = (file: FileType) => {
         if (file.type.startsWith("image/")) {
-            // Create an optimized URL with ImageKit transformations for viewing
-            // Using higher quality and responsive sizing for better viewing experience
             const optimizedUrl = `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:q-90,w-1600,h-1200,fo-auto/${file.path}`;
             window.open(optimizedUrl, "_blank");
         }
@@ -274,7 +245,6 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
 
     // Handle file or folder click
     const handleItemClick = (file: FileType) => {
-        console.log(file.isFolder)
         if (file.isFolder) {
             navigateToFolder(file.id, file.name);
         } else if (file.type.startsWith("image/")) {
@@ -294,14 +264,17 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
                     .filter((file) => file.createdAt)
                     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             case "star":
-                return files.filter((file) => !file.isTrash && file.isStarred);
+                const starredFiles = files.filter((file) => !file.isTrash && file.isStarred);
+                return starredFiles;
             case "trash":
-                return files.filter((file) => file.isTrash && !file.isStarred)
+                return files.filter((file) => file.isTrash && !file.isStarred);
+
             case "all":
             default:
                 return files.filter((file) => !file.isTrash);
         }
     }, [files, currentTab]);
+
 
     const handleSelectAll = () => {
         setSelectAllCheckbox(!SelectaAllCheckbox);
@@ -322,8 +295,68 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
         })
     };
 
-    const handleDownload = (file: FileType) => {
+    const handleDownload = async (file: FileType) => {
+        try {
+            if (!file) {
+                console.log("File is required");
+            }
 
+            toast.isActive(`Getting "${file.name}" ready for download...`);
+
+            //for download image file
+            if (file.type.startsWith("image/")) {
+                const downloadUrl = `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:q-100,orig-true/${file.path}`;
+
+                //first fetch url to check is available
+                const response = await fetch(downloadUrl);
+                if (!response.ok) {
+                    toast.error("Fail to download image")
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+
+                link.href = url;
+                link.download = file.name;
+                document.body.appendChild(link);
+
+
+                toast.success(`${file.name}" is ready to download.`);
+                link.click();
+
+                document.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            } else {
+                // download other file
+                const response = await fetch(file.fileUrl);
+                if (!response.ok) {
+                    toast.error("Fail to download file")
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+
+                link.href = url;
+                link.download = file.name;
+                document.body.appendChild(link);
+
+                toast.success(`${file.name}" is ready to download.`);
+                link.click();
+
+                document.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            }
+
+        } catch (error) {
+            console.error("Error downloading file:", error);
+            toast.error("We couldn't download the file. Please try again later.")
+        }
+    }
+
+    const handleOnclick = () => {
+        setOnclick(!Onclick)
     }
 
     return (
@@ -415,18 +448,23 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
                     />
                     <p>Select all</p>
                     <div className="w-fit h-fit rounded-md flex items-center justify-center">
-                        <Button variant="light" className="cursor-pointer">Delete all</Button>
+                        <Button onClick={handleOnclick} variant="light" className="cursor-pointer">Delete all</Button>
+                        {
+                            Onclick &&
+                            (
+                                <DeleteRepositoryModal handleOnclick={handleOnclick} />
+                            )
+                        }
                     </div>
                 </div>
             </div>
-
-            {/* {currentTab === "all" && ( */}
+            {currentTab == "all" &&
                 <FolderNavigation
                     folderPath={folderPath}
                     navigateUp={navigateUp}
                     navigateToPathFolder={navigateToPathFolder}
                 />
-            {/* )} */}
+            }
 
             {loading ? (
                 <FileLoadingState />
@@ -451,7 +489,7 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
                             {/* Table rows */}
                             <div className="divide-y divide-gray-800">
                                 {
-                                    files.map((file) => (
+                                    filteredFiles.map((file) => (
                                         <div key={file.id} className="grid grid-cols-6 px-4 py-3">
                                             <div onClick={() => handleItemClick(file)} className="cursor-pointer col-span-2 flex items-center gap-2">
                                                 <Checkbox
@@ -493,12 +531,12 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
                                                 <span
                                                     className="min-w-0 px-2"
                                                 >
-                                                    {!file.isTrash && <span onClick={(e) => { e.preventDefault(); handleTrashFile(file.id) }} className='cursor-pointer'>
+                                                    {!file.isTrash && !file.isFolder && <span onClick={(e) => { e.preventDefault(); handleTrashFile(file.id) }} className='cursor-pointer'>
                                                         <Trash
                                                             className={`h-4 w-4`}
                                                         />
                                                     </span>}
-                                                    <span className="hidden sm:inline">
+                                                    {file.isTrash && <span className="hidden sm:inline">
                                                         {
                                                             file.isTrash && (
                                                                 <div className='flex justify-center gap-4 items-center'>
@@ -529,7 +567,7 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
                                                                 </div>
                                                             )
                                                         }
-                                                    </span>
+                                                    </span>}
                                                 </span>
                                                 {!file.isTrash && !file.isFolder && (
                                                     <Button

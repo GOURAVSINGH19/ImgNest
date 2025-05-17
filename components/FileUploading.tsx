@@ -8,13 +8,12 @@ import {
     X,
     FileUp,
     AlertTriangle,
-    FolderPlus,
     ArrowRight,
 } from "lucide-react";
-import { addToast } from "@heroui/toast";
 
 import axios from "axios";
 import { useAuth } from "@clerk/nextjs";
+import { toast } from "react-toastify";
 
 interface FileUploadFormProps {
     userId: string;
@@ -93,22 +92,22 @@ const FileUploadForm = ({
         }
 
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append("file", file, file.name);
         formData.append("userId", userId);
         if (currentFolder) {
             formData.append("parentId", currentFolder);
         }
+
+        console.log(formData)
 
         setUploading(true);
         setProgress(0);
         setError(null);
 
         try {
-            const token = await getToken();
             const data = await axios.post("/api/files/upload", formData, {
                 headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "multipart/form-data",
                 },
                 onUploadProgress: (progressEvent) => {
                     if (progressEvent.total) {
@@ -121,12 +120,8 @@ const FileUploadForm = ({
             });
 
             console.log(data)
+            toast.success(`${file.name} has been uploaded successfully..`);
 
-            addToast({
-                title: "Upload Successful",
-                description: `${file.name} has been uploaded successfully.`,
-                color: "success",
-            });
 
             clearFile();
 
@@ -136,11 +131,7 @@ const FileUploadForm = ({
         } catch (error) {
             console.error("Error uploading file:", error);
             setError("Failed to upload file. Please try again.");
-            addToast({
-                title: "Upload Failed",
-                description: "We couldn't upload your file. Please try again.",
-                color: "danger",
-            });
+            toast.error("We couldn't upload your file. Please try again.");
         } finally {
             setUploading(false);
         }
@@ -182,7 +173,7 @@ const FileUploadForm = ({
                                     <button
                                         type="button"
                                         onClick={() => fileInputRef.current?.click()}
-                                        className="text-primary cursor-pointer font-medium inline bg-transparent border-0 p-0 m-0"
+                                        className="text-secondary cursor-pointer font-medium inline bg-transparent border-0 p-0 m-0"
                                     >
                                         browse
                                     </button>

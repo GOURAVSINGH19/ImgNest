@@ -1,7 +1,7 @@
 import { db } from "@/drizzle/db";
 import { files } from "@/drizzle/db/schema";
 import { auth } from "@clerk/nextjs/server";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import ImageKit from "imagekit";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -21,6 +21,9 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized user" }, { status: 401 });
     }
 
+    const body = await request.json();
+    const { name } = body;
+
     const { fileId } = await props.params;
     if (!fileId) {
       return NextResponse.json({ error: "File is required" }, { status: 401 });
@@ -30,60 +33,66 @@ export async function DELETE(
     const userFiles = await db
       .select()
       .from(files)
-      .where(eq(files.userId, userId));
+      .where(and(eq(files.userId, userId), eq(files.id, fileId)));
+    let deletedFiles;
+    if (name == files.name) {
+      // Delete each file from ImageKit if not a folder
+      for (const file of userFiles) {
+        if (!file.isFolder) {
+          try {
+            let imagekitFileId = null;
 
-    // Delete each file from ImageKit if not a folder
-    for (const file of userFiles) {
-      if (!file.isFolder) {
-        try {
-          let imagekitFileId = null;
+            if (file.fileUrl) {
+              const urlWithoutQuery = file.fileUrl.split("?")[0];
+              imagekitFileId = urlWithoutQuery.split("/").pop();
+            }
 
-          if (file.fileUrl) {
-            const urlWithoutQuery = file.fileUrl.split("?")[0];
-            imagekitFileId = urlWithoutQuery.split("/").pop();
-          }
+            if (!imagekitFileId && file.path) {
+              imagekitFileId = file.path.split("/").pop();
+            }
 
-          if (!imagekitFileId && file.path) {
-            imagekitFileId = file.path.split("/").pop();
-          }
+            if (imagekitFileId) {
+              try {
+                const searchResults = await imagekit.listFiles({
+                  name: imagekitFileId,
+                  limit: 1,
+                });
 
-          if (imagekitFileId) {
-            try {
-              const searchResults = await imagekit.listFiles({
-                name: imagekitFileId,
-                limit: 1,
-              });
-
-              if (searchResults && searchResults.length > 0) {
-                await imagekit.deleteFile(searchResults[0].name);
-              } else {
+                if (searchResults && searchResults.length > 0) {
+                  await imagekit.deleteFile(searchResults[0].name);
+                } else {
+                  await imagekit.deleteFile(imagekitFileId);
+                }
+              } catch (searchError) {
+                console.error(
+                  "Error searching or deleting file in ImageKit",
+                  searchError
+                );
                 await imagekit.deleteFile(imagekitFileId);
               }
-            } catch (searchError) {
-              console.error(
-                "Error searching or deleting file in ImageKit",
-                searchError
-              );
-              await imagekit.deleteFile(imagekitFileId);
             }
+          } catch (imageKitError) {
+            console.error("ImageKit Deletion Error:", imageKitError);
           }
-        } catch (imageKitError) {
-          console.error("ImageKit Deletion Error:", imageKitError);
         }
       }
+
+      // Delete files from DB
+      deletedFiles = await db
+        .delete(files)
+        .where(eq(files.userId, userId))
+        .returning();
+      return NextResponse.json({
+        success: true,
+        message: "All files deleted successfully",
+      });
+    } else {
+      return NextResponse.json({
+        success: true,
+        message: "files are not deleted successfully",
+        deletedFiles,
+      });
     }
-
-    // Delete files from DB
-    const deletedFiles = await db
-      .delete(files)
-      .where(eq(files.userId, userId))
-      .returning();
-
-    return NextResponse.json({
-      success: true,
-      message: "All files deleted successfully",
-      deletedFiles,
-    });
   } catch (error) {
     console.error("Unexpected error:", error);
     return NextResponse.json(
@@ -93,6 +102,4 @@ export async function DELETE(
   }
 }
 
-const middleware = ()=>{
-    
-}
+const middleware = () => {};

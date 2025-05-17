@@ -1,7 +1,6 @@
 import { db } from "@/drizzle/db";
-import { files, NewFile } from "@/drizzle/db/schema";
+import { files } from "@/drizzle/db/schema";
 import { auth } from "@clerk/nextjs/server";
-import { error } from "console";
 import { eq, and } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { NextResponse } from "next/server";
@@ -22,6 +21,26 @@ export async function POST(request: NextResponse) {
     if (!name || name.trim() === "" || typeof name !== "string") {
       return NextResponse.json(
         { error: "Folder name is required" },
+        { status: 400 }
+      );
+    }
+
+    const [existingItem] = await db
+      .select()
+      .from(files)
+      .where(
+        and(
+          eq(files.userId, userId),
+          eq(files.name, name.trim()),
+        )
+      );
+
+    if (existingItem) {
+      return NextResponse.json(
+        {
+          error:
+            "A file or folder with this name already exists in this location",
+        },
         { status: 400 }
       );
     }
