@@ -136,7 +136,7 @@ export default function SignUpForm() {
                                 className="text-sm font-medium text-default-900"
                             >
                                 Verification Code
-                            </label>
+                            </label> 
                             <Input
                                 id="verificationCode"
                                 type="text"

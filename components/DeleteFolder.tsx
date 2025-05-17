@@ -1,21 +1,41 @@
 "use client"
 
 import { useState } from "react"
-import { X, Star, Eye, Lock } from "lucide-react"
+import { X, Lock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
-export default function DeleteRepositoryModal({handleOnclick}: {handleOnclick: () => void}) {
+interface DeleteFolderProps {
+    handleOnclick: () => void;
+    onDelete: () => Promise<void>;
+}
+
+export default function DeleteFolder({ handleOnclick, onDelete }: DeleteFolderProps) {
     const [repoName, setRepoName] = useState("")
+    const [isDeleting, setIsDeleting] = useState(false)
     const fullRepoName = "delete all"
 
     const isConfirmed = repoName === fullRepoName
+
+    const handleDelete = async () => {
+        if (!isConfirmed) return;
+        
+        try {
+            setIsDeleting(true);
+            await onDelete();
+            handleOnclick(); // Close modal after successful deletion
+        } catch (error) {
+            console.error('Error deleting folders:', error);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-md">
             <div className="bg-[#0f1010] rounded-md w-full max-w-md text-white shadow-lg">
                 <div className="flex items-center justify-between p-4 border-b border-[#30363d]">
-                    <h2 className="text-xl font-semibold">Delete</h2>
+                    <h2 className="text-xl font-semibold">Delete All Folders</h2>
                     <button className="text-gray-400 hover:text-white">
                         <X onClick={handleOnclick} size={20} className="cursor-pointer" />
                     </button>
@@ -42,17 +62,18 @@ export default function DeleteRepositoryModal({handleOnclick}: {handleOnclick: (
                         />
 
                         <Button
-                            disabled={!isConfirmed}
+                            disabled={!isConfirmed || isDeleting}
+                            onClick={handleDelete}
                             className={`w-full py-2 rounded-md ${isConfirmed
-                                    ? "bg-[#da3633] hover:bg-[#b92e2c] text-white"
-                                    : "bg-[#21262d] text-gray-500 cursor-not-allowed"
-                                }`}
+                                ? "bg-[#da3633] hover:bg-[#b92e2c] text-white"
+                                : "bg-[#21262d] text-gray-500 cursor-not-allowed"
+                            }`}
                         >
-                            Delete this repository
+                            {isDeleting ? "Deleting..." : "Delete all folders"}
                         </Button>
 
                         <p className="text-gray-400 text-sm mt-4">
-                            Once you delete all Folders, there is no going back. Please be certain.
+                            Once you delete all folders, there is no going back. Please be certain.
                         </p>
                     </div>
                 </div>

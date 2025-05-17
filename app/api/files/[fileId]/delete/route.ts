@@ -4,6 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { and, eq } from "drizzle-orm";
 import ImageKit from "imagekit";
 import { NextRequest, NextResponse } from "next/server";
+import { toast } from "react-toastify";
 
 const imagekit = new ImageKit({
   publicKey: process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY as string,
@@ -57,7 +58,7 @@ export async function DELETE(
             });
 
             if (searchResults && searchResults.length > 0) {
-              await imagekit.deleteFile(searchResults[0].name) ;
+              await imagekit.deleteFile(searchResults[0].name);
             } else {
               await imagekit.deleteFile(imagekitFileId);
             }
@@ -79,6 +80,8 @@ export async function DELETE(
       .delete(files)
       .where(and(eq(files.id, fileId), eq(files.userId, userId)))
       .returning();
+
+    toast.success("File delete SuccessFully");
 
     return NextResponse.json({
       success: true,

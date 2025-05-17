@@ -1,9 +1,9 @@
-import Navbar from '@/components/Navabr'
+import Navbar from '@/components/Navbar'
 import SignUpForm from '@/components/SignUpForm'
 
 const SignUpPage = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-[#272424da]">
+    <div className="min-h-screen flex flex-col bg-[#121212]">
       <Navbar />
 
       <main className="flex-1 flex justify-center items-center p-6">

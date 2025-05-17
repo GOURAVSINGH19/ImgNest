@@ -4,6 +4,7 @@ import { db } from "@/drizzle/db";
 import { files } from "@/drizzle/db/schema";
 import { eq, and } from "drizzle-orm";
 import ImageKit from "imagekit";
+import { toast } from "react-toastify";
 
 // Initialize ImageKit with your credentials
 const imagekit = new ImageKit({
@@ -83,6 +84,7 @@ export async function DELETE(
       .where(and(eq(files.id, fileId), eq(files.userId, userId)))
       .returning();
 
+    toast.success("Empty-Trash successfully")
     return NextResponse.json({
       success: true,
       message: "File deleted successfully",

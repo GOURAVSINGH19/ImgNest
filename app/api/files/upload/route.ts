@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { and, eq, isNull } from "drizzle-orm";
 import ImageKit from "imagekit";
 import { v4 as uuidv4 } from "uuid";
+import { toast } from "react-toastify";
 
 const imagekit = new ImageKit({
   publicKey: process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY || "",
@@ -141,7 +142,7 @@ export async function POST(request: NextRequest) {
       console.log("Inserting into DB:", fileData);
 
       const [newFile] = await db.insert(files).values(fileData).returning();
-      console.log("File saved to database:", newFile);
+      toast.success("File Uploaded Successfully")
       return NextResponse.json(newFile);
     } catch (error) {
       console.error("Error during file processing:", error);

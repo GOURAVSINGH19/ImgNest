@@ -34,9 +34,8 @@ export async function PATCH(
       .set({ isStarred: !file.isStarred })
       .where(and(eq(files.id, fileId), eq(files.userId, userId)))
       .returning();
+    
       
-    console.log(updatefiles);
-
     const updatefile = updatefiles[0];
     return NextResponse.json(updatefile);
   } catch (error) {

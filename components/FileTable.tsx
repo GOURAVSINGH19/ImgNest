@@ -105,7 +105,8 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
     //Handle Trash folder
     const handleTrashFile = async (fileId: string) => {
         try {
-            const res = await axios.post(`/api/files/${fileId}/trash`)
+            await axios.post(`/api/files/${fileId}/trash`)
+            toast.success("Check File in Trash Tab");
             setFiles(
                 files.map((file) => (
                     file.id === fileId ? { ...file, isTrash: !file.isTrash } : file
@@ -138,11 +139,20 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
     }
 
     //Handle Recover File 
-    const handleRecoverFile = async (FileId: string) => {
+    const handleRecoverFile = async (fileId: string) => {
         try {
+            const response = await axios.post(`/api/files/${fileId}/trash`);
 
+            if (response.data.success) {
+                // Update the file in the local state
+                setFiles(files.map((file) =>
+                    file.id === fileId ? { ...file, isTrash: false } : file
+                ));
+                toast.success("File restored successfully");
+            }
         } catch (error) {
-
+            console.error("Error restoring file:", error);
+            toast.error("Failed to restore file");
         }
     }
 
@@ -170,19 +180,24 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
 
 
     //Handle DeleteAll File
-    // const handleDeleteAllFile = async () => {
-    //     try {
+    const handleDeleteFolders = async () => {
+        try {
+            // First delete all files from the database
+            const response = await axios.delete('/api/files/delete-all');
 
-    //     }
-    //     catch (error) {
-    //         console.error("Error deleting file:", error);
-    //         addToast({
-    //             title: "Deletion Failed",
-    //             description: "We couldn't delete the file. Please try again later.",
-    //             color: "danger",
-    //         });
-    //     }
-    // }
+            if (response.data.success) {
+                // Clear the files list in UI
+                setFiles([]);
+                toast.success("All files and folders deleted successfully");
+            } else {
+                throw new Error(response.data.error || "Failed to delete files");
+            }
+        }
+        catch (error) {
+            console.error("Error in deleting Folders:", error);
+            toast.error("Error in Delete All Folders");
+        }
+    }
 
 
     const openImageViewer = (file: FileType) => {
@@ -452,7 +467,9 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
                         {
                             Onclick &&
                             (
-                                <DeleteRepositoryModal handleOnclick={handleOnclick} />
+                                <DeleteRepositoryModal onDelete={async () => {
+                                    await handleDeleteFolders();
+                                }} handleOnclick={handleOnclick} />
                             )
                         }
                     </div>
@@ -531,7 +548,7 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
                                                 <span
                                                     className="min-w-0 px-2"
                                                 >
-                                                    {!file.isTrash && !file.isFolder && <span onClick={(e) => { e.preventDefault(); handleTrashFile(file.id) }} className='cursor-pointer'>
+                                                    {!file.isTrash && <span onClick={(e) => { e.preventDefault(); handleTrashFile(file.id) }} className='cursor-pointer'>
                                                         <Trash
                                                             className={`h-4 w-4`}
                                                         />
