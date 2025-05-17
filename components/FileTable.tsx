@@ -169,6 +169,7 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
 
             if (res.data.success) {
                 setFiles(prev => prev.filter(f => f.id !== fileId));
+                toast.success("File delete SuccessFully");
             } else {
                 throw new Error(res.data.error || "Unknown error");
             }
@@ -340,7 +341,7 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
                 toast.success(`${file.name}" is ready to download.`);
                 link.click();
 
-                document.removeChild(link);
+                document.body.removeChild(link);
                 window.URL.revokeObjectURL(url);
             } else {
                 // download other file
@@ -360,7 +361,7 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
                 toast.success(`${file.name}" is ready to download.`);
                 link.click();
 
-                document.removeChild(link);
+                document.body.removeChild(link);
                 window.URL.revokeObjectURL(url);
             }
 
@@ -591,10 +592,10 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
                                                         variant="flat"
                                                         size="sm"
                                                         onClick={() => handleDownload(file)}
-                                                        className="min-w-0 px-2"
+                                                        className="min-w-0 px-2 cursor-pointer"
                                                         startContent={<Download className="h-4 w-4" />}
                                                     >
-                                                        <span aria-label='Download-btn' className="hidden sm:inline">Download</span>
+                                                        <span aria-label='Download-btn' className="hidden sm:inline ">Download</span>
                                                     </Button>
                                                 )}
                                             </div>

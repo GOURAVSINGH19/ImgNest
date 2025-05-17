@@ -81,8 +81,6 @@ export async function DELETE(
       .where(and(eq(files.id, fileId), eq(files.userId, userId)))
       .returning();
 
-    toast.success("File delete SuccessFully");
-
     return NextResponse.json({
       success: true,
       message: "File deleted successfully",

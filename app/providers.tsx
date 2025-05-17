@@ -16,6 +16,7 @@ const authenticator = async () => {
     }
 }
 
+
 export function Providers({ children }: ProviderProps) {
     return (
         <h1>

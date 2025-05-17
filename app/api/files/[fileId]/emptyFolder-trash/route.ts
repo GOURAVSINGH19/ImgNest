@@ -4,7 +4,6 @@ import { auth } from "@clerk/nextjs/server";
 import { and, eq } from "drizzle-orm";
 import ImageKit from "imagekit";
 import { NextRequest, NextResponse } from "next/server";
-import { toast } from "react-toastify";
 
 const imagekit = new ImageKit({
   publicKey: process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY || "",
@@ -69,7 +68,9 @@ export async function DELETE(
     const [file] = await db
       .select()
       .from(files)
-      .where(and(eq(files.id, fileId), eq(files.userId, userId))); // ✅ fixed
+      .where(and(eq(files.id, fileId), eq(files.userId, userId))); 
+
+      console.log(file)
 
     if (!file) {
       return NextResponse.json({ error: "File not found" }, { status: 404 });
@@ -99,8 +100,6 @@ export async function DELETE(
 
       await db.delete(files).where(eq(files.id, fileId));
     }
-    toast.success("File delete SuccessFully");
-
 
     return NextResponse.json({
       success: true,

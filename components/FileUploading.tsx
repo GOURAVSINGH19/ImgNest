@@ -44,13 +44,10 @@ const FileUploadForm = ({
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const selectedFile = e.target.files[0];
-
-            // Validate file size (5MB limit)
             if (selectedFile.size > 5 * 1024 * 1024) {
                 setError("File size exceeds 5MB limit");
                 return;
             }
-
             setFile(selectedFile);
             setError(null);
         }
@@ -60,13 +57,10 @@ const FileUploadForm = ({
         e.preventDefault();
         if (e.dataTransfer.files && e.dataTransfer.files[0]) {
             const droppedFile = e.dataTransfer.files[0];
-
-            // Validate file size (5MB limit)
             if (droppedFile.size > 5 * 1024 * 1024) {
                 setError("File size exceeds 5MB limit");
                 return;
             }
-
             setFile(droppedFile);
             setError(null);
         }
@@ -98,16 +92,17 @@ const FileUploadForm = ({
             formData.append("parentId", currentFolder);
         }
 
-        console.log(formData)
-
         setUploading(true);
         setProgress(0);
         setError(null);
 
         try {
+            const token = await getToken();
             const data = await axios.post("/api/files/upload", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
+                    Accept: 'application/json',
+                    Authorization: `Bearer ${token}`,
                 },
                 onUploadProgress: (progressEvent) => {
                     if (progressEvent.total) {
@@ -119,25 +114,20 @@ const FileUploadForm = ({
                 },
             });
 
-            console.log(data)
             toast.success(`${file.name} has been uploaded successfully..`);
-
-
             clearFile();
 
             if (onUploadSuccess) {
                 onUploadSuccess();
             }
-        } catch (error) {
-            console.error("Error uploading file:", error);
-            setError("Failed to upload file. Please try again.");
-            toast.error("We couldn't upload your file. Please try again.");
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.error || error.response?.data?.details || "Failed to upload file. Please try again.";
+            setError(errorMessage);
+            toast.error(errorMessage);
         } finally {
             setUploading(false);
         }
     };
-
-
 
     return (
         <div className="space-y-4  w-full h-full relative">
@@ -150,7 +140,7 @@ const FileUploadForm = ({
                         onClick={() => fileInputRef.current?.click()}
                         className="flex-1"
                     >
-                        Add Image
+                        Add File
                     </Button>
                 </div>
 
@@ -169,7 +159,7 @@ const FileUploadForm = ({
                             <FileUp className="h-12 w-12 mx-auto text-primary/70" />
                             <div>
                                 <p className="text-default-600">
-                                    Drag and drop your image here, or{" "}
+                                    Drag and drop your file here, or{" "}
                                     <button
                                         type="button"
                                         onClick={() => fileInputRef.current?.click()}
@@ -178,14 +168,14 @@ const FileUploadForm = ({
                                         browse
                                     </button>
                                 </p>
-                                <p className="text-xs text-default-500 mt-1">Images up to 5MB</p>
+                                <p className="text-xs text-default-500 mt-1">Images and PDFs up to 5MB</p>
                             </div>
                             <Input
                                 type="file"
                                 ref={fileInputRef}
                                 onChange={handleFileChange}
                                 className="hidden"
-                                accept="image/*"
+                                accept="image/*,.pdf"
                             />
                         </div>
                     ) : (
@@ -243,7 +233,7 @@ const FileUploadForm = ({
                                 className="w-full"
                                 isDisabled={!!error}
                             >
-                                {uploading ? `Uploading... ${progress}%` : "Upload Image"}
+                                {uploading ? `Uploading... ${progress}%` : "Upload File"}
                             </Button>
                         </div>
                     )}
@@ -252,8 +242,8 @@ const FileUploadForm = ({
                 <div className="bg-default-100/5 p-4 rounded-lg">
                     <h4 className="text-sm font-medium mb-2">Tips</h4>
                     <ul className="text-xs text-default-600 space-y-1">
-                        <li>• Images are private and only visible to you</li>
-                        <li>• Supported formats: JPG, PNG, GIF, WebP</li>
+                        <li>• Files are private and only visible to you</li>
+                        <li>• Supported formats: JPG, PNG, GIF, WebP, PDF</li>
                         <li>• Maximum file size: 5MB</li>
                     </ul>
                 </div>
