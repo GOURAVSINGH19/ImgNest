@@ -2,7 +2,7 @@ import { db } from "@/drizzle/db";
 import { files } from "@/drizzle/db/schema";
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import ImageKit from "imagekit";
 import { v4 as uuidv4 } from "uuid";
 
@@ -126,9 +126,10 @@ export async function POST(request: NextRequest) {
 
       const [newFile] = await db.insert(files).values(fileData).returning();
       return NextResponse.json(newFile);
-    } catch (error) {
+    } catch (err) {
+      console.error("Error in file upload:", err);
       return NextResponse.json(
-        { error: "Error processing file upload", details: error instanceof Error ? error.message : "Unknown error" },
+        { error: "Internal server error" },
         { status: 500 }
       );
     }

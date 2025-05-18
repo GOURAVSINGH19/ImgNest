@@ -37,9 +37,10 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(userFiles);
-  } catch (Error) {
+  } catch (err) {
+    console.error("Error in files route:", err);
     return NextResponse.json(
-      { error: "Error in fetching data form database" },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

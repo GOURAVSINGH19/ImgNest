@@ -38,9 +38,10 @@ export async function PATCH(
       
     const updatefile = updatefiles[0];
     return NextResponse.json(updatefile);
-  } catch (error) {
+  } catch (err) {
+    console.error("Error starring file:", err);
     return NextResponse.json(
-      { error: "Updating File is not Complete" },
+      { error: "Error starring file" },
       { status: 500 }
     );
   }

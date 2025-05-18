@@ -11,8 +11,8 @@ const authenticator = async () => {
         const response = await fetch("/api/imagekit-auth");
         const data = await response.json();
         return data;
-    } catch (error) {
-        console.log("error")
+    } catch (err) {
+        console.error("Error in provider:", err);
     }
 }
 

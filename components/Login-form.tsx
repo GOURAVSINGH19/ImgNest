@@ -16,6 +16,7 @@ import { AlertCircle, Mail, Lock, Eye, EyeOff, Github } from "lucide-react"
 import Link from "next/link"
 import { Divider } from "@heroui/divider"
 import { CardContent } from "./ui/card"
+import { toast } from "react-toastify"
 
 export function LoginForm() {
   const router = useRouter();
@@ -55,11 +56,11 @@ export function LoginForm() {
         console.error("Sign-in incomplete:", result);
         setauthError("Sign-in could not be completed. Please try again.");
       }
-    } catch (error: any) {
-      console.error("Sign-in error:", error);
+    } catch (error: unknown) {
+      console.error("Error in login:", error);
+      toast.error("Error in login");
       setauthError(
-        error.errors?.[0]?.message ||
-        "An error occurred during sign-in. Please try again."
+        error instanceof Error ? error.message : "An error occurred during sign-in. Please try again."
       );
     } finally {
       setisSubmitting(false);
@@ -176,9 +177,9 @@ export function LoginForm() {
 
           <Divider />
           <CardFooter className="p-4 text-center">
-            <p className="text-sm text-default-600">
-              Don't have an account?{" "}
-              <Link href="/sign-up" className="text-primary font-medium hover:underline">
+            <p className="text-sm text-gray-500">
+              Don&apos;t have an account?{" "}
+              <Link href="/signup" className="text-blue-500 hover:underline">
                 Sign up
               </Link>
             </p>

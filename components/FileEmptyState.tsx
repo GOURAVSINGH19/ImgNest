@@ -11,7 +11,7 @@ export default function FileEmptyState({ activeTab }: FileEmptyStateProps) {
   return (
     <Card >
       <CardBody className="text-center py-16">
-        <File color="Secondary" className="h-16 w-16 mx-auto text-primary/50 mb-6" />
+        <File color="primarary" className="h-16 w-16 mx-auto text-primary/50 mb-6" />
         <h3 className="text-xl font-medium mb-2 text-zinc-500">
           {activeTab === "all" && "No files available"}
           {activeTab === "star" && "No Starred files"}

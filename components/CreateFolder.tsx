@@ -1,19 +1,10 @@
 "use client"
 import { useState } from 'react'
-import {
-    Modal,
-    ModalContent,
-    ModalHeader,
-    ModalBody,
-    ModalFooter,
-} from "@heroui/modal";
-import { ArrowRight, FolderPlus, X } from 'lucide-react';
+import { ArrowRight} from 'lucide-react';
 import axios from 'axios';
 import { Button } from "@heroui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { FolderIcon } from "lucide-react"
 import { useAuth } from '@clerk/nextjs';
 import { toast } from 'react-toastify';

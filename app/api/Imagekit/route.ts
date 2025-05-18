@@ -18,7 +18,11 @@ export async function GET() {
     const authParams = imagekit.getAuthenticationParameters();
 
     return NextResponse.json(authParams);
-  } catch (Error) {
-    return NextResponse.json({ error: "Unauthorized user " }, { status: 404 });
+  } catch (err) {
+    console.error("Error getting ImageKit token:", err);
+    return NextResponse.json(
+      { error: "Error getting ImageKit token" },
+      { status: 500 }
+    );
   }
 }

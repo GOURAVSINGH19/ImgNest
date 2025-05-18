@@ -41,9 +41,10 @@ export async function POST(request: NextRequest) {
 
     const [newFile] = await db.insert(files).values(fileData).returning();
     return NextResponse.json(newFile);
-  } catch (Error) {
+  } catch (err) {
+    console.error("Error uploading file:", err);
     return NextResponse.json(
-      { error: "Failed to save file information" },
+      { error: "Error uploading file" },
       { status: 500 }
     );
   }

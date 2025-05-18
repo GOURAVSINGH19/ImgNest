@@ -3,7 +3,6 @@ import { files } from "@/drizzle/db/schema";
 import { auth } from "@clerk/nextjs/server";
 import { and, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
-import { toast } from "react-toastify";
 
 export async function POST(
   request: NextRequest,
@@ -42,9 +41,10 @@ export async function POST(
       message: `file ${action} successfully`,
       success: true
     });
-  } catch (Error) {
+  } catch (err) {
+    console.error("Error moving file to trash:", err);
     return NextResponse.json(
-      { error: "Error in updating trash" },
+      { error: "Error moving file to trash" },
       { status: 500 }
     );
   }

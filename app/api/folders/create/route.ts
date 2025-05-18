@@ -89,7 +89,11 @@ export async function POST(request: NextResponse) {
       },
       { status: 200 }
     );
-  } catch (error) {
-    return NextResponse.json({ error: "Folder not create" }, { status: 404 });
+  } catch (err) {
+    console.error("Error creating folder:", err);
+    return NextResponse.json(
+      { error: "Error creating folder" },
+      { status: 500 }
+    );
   }
 }

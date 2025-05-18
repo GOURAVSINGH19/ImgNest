@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpFromLine } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { Button } from "@heroui/button";
 
 interface FolderNavigationProps {
@@ -23,7 +23,7 @@ export default function FolderNavigation({
                 onClick={navigateUp}
                 isDisabled={folderPath.length === 0}
             >
-                <ArrowUpFromLine className="h-4 w-4" />
+                <ChevronLeft className="h-4 w-4 mt-1/9 ml-2"  />
             </Button>
             <Button
                 variant="flat"
