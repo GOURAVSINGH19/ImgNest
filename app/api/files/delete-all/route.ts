@@ -3,7 +3,6 @@ import { db } from "@/drizzle/db";
 import { files } from "@/drizzle/db/schema";
 import ImageKit from "imagekit";
 
-// Initialize ImageKit
 const imagekit = new ImageKit({
     publicKey: process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY || "",
     privateKey: process.env.IMAGEKIT_PRIVATE_KEY || "",
@@ -13,10 +12,8 @@ const imagekit = new ImageKit({
 
 export async function DELETE() {
     try {
-        // Get all files from database
         const allFiles = await db.select().from(files);
         
-        // Delete files from ImageKit
         const deletePromises = allFiles.map(async (file) => {
             if (file.path) {
                 try {
@@ -30,8 +27,6 @@ export async function DELETE() {
                 }
             }
         });
-
-        // Wait for all ImageKit deletions to complete
         await Promise.all(deletePromises);
 
         // Delete all records from database

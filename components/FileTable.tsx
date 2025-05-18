@@ -118,26 +118,6 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
         }
     }
 
-    //Handle Delete File
-    const handleDeleteFile = async (fileId: string) => {
-        try {
-            const foundFile = files.find(t => t.id === fileId)
-            if (!foundFile) {
-                console.log("File not Found");
-            }
-
-            const res = await axios.delete(`/api/files/${fileId}/delete`);
-            if (res.data.success) {
-                //remove file from local state
-                setFiles(files.filter((file) => file.id !== fileId));
-            }
-        }
-        catch (error) {
-            console.error("Error Trashing file:", error);
-            toast.error("We couldn't Trash the file. Please try again later.")
-        }
-    }
-
     //Handle Recover File 
     const handleRecoverFile = async (fileId: string) => {
         try {
