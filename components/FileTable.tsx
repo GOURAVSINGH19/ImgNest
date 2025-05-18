@@ -8,7 +8,6 @@ import {
     RefreshCcw,
     Trash,
     Folder,
-    X,
     Download,
     ArchiveRestore,
     Shredder,
@@ -22,7 +21,6 @@ import { File as FileType } from "../drizzle/db/schema"
 import FileEmptyState from './FileEmptyState'
 import Badge from './ui/badge'
 import FolderNavigation from './FolderNavigation'
-import RecentFolderOpen from './RecentFolderOpen'
 import { toast } from 'react-toastify'
 import DeleteRepositoryModal from './DeleteFolder'
 
@@ -42,11 +40,10 @@ const formatDate = (date: Date): string => {
 interface allfilesProps {
     userId: string;
     onFolderChange?: (folderId: string | null) => void;
-    activeTab: string;
     refreshTrigger?: number;
 }
 
-const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "all" }: allfilesProps) => {
+const FileTable = ({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps) => {
     const [loading, setLoading] = useState(true);
     const [currentFolder, setCurrentFolder] = useState<string | null>(null);
     const [folderPath, setFolderPath] = useState<
@@ -54,8 +51,7 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
     >([]);
     const [SelectaAllCheckbox, setSelectAllCheckbox] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
-    const [Layout, setLayout] = useState();
-    const [currentTab, setCurrentTab] = useState(activeTab);
+    const [currentTab, setCurrentTab] = useState("all");
     const [files, setFiles] = useState<FileType[]>([]);
     const [Onclick, setOnclick] = useState(false);
 
@@ -250,7 +246,7 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0, activeTab = "al
 
     useEffect(() => {
         Fetchdata();
-    }, [refreshTrigger, currentFolder, userId])
+    }, [refreshTrigger, currentFolder, userId, Fetchdata])
 
 
     const filteredFiles = useMemo(() => {

@@ -1,7 +1,6 @@
 "use client"
-import { cn } from "@/lib/utils"
 import {
-  Card,
+    Card,
 } from "@/components/ui/card"
 import { signInSchema } from "@/Schema/signinSchema"
 import { useSignIn } from "@clerk/nextjs"
@@ -54,10 +53,9 @@ export default function SignInForm() {
                 console.error("Sign-in incomplete:", result);
                 setauthError("Sign-in could not be completed. Please try again.");
             }
-        } catch (error: any) {
+        } catch (error) {
             console.error("Sign-in error:", error);
             setauthError(
-                error.errors?.[0]?.message ||
                 "An error occurred during sign-in. Please try again."
             );
         } finally {
@@ -182,7 +180,7 @@ export default function SignInForm() {
                     <Divider />
                     <CardFooter className="p-4 text-center">
                         <p className="text-sm text-default-600">
-                            Don't have an account?{" "}
+                            Don't have an account?
                             <Link href="/sign-up" className="text-primary font-medium hover:underline">
                                 Sign up
                             </Link>

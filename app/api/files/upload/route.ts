@@ -67,6 +67,7 @@ export async function POST(request: NextRequest) {
           );
         }
       } catch (error) {
+        console.log("Error in Uploading File",error)
         return NextResponse.json(
           { error: "Error validating parent folder" },
           { status: 500 }

@@ -54,7 +54,7 @@ export default function DeleteFolder({ handleOnclick, onDelete }: DeleteFolderPr
                     </div>
 
                     <div className="w-full">
-                        <p className="text-base mb-2">To confirm, type "{fullRepoName}" in the box below</p>
+                        <p className="text-base mb-2">{`To confirm, type ${fullRepoName} in the box below`}</p>
                         <Input
                             value={repoName}
                             onChange={(e) => setRepoName(e.target.value)}

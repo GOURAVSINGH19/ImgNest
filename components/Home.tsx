@@ -1,5 +1,4 @@
 "use client"
-import Image from "next/image"
 import { ArrowRight, Plus, Upload, X } from "lucide-react"
 import FileTable from "./FileTable"
 import { useCallback, useState } from "react"
@@ -10,9 +9,8 @@ import CreateFolder from "./CreateFolder"
 
 const Home = () => {
     const { userId } = useAuth();
-    const [Onclick, setOnclick] = useState<Boolean>(false);
+    const [Onclick, setOnclick] = useState(false);
     const [currentFolder, setCurrentFolder] = useState<string | null>(null);
-    const [activeTab, setActiveTab] = useState<string>("all");
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const [CreateFolderClick, setCreateFolderClick] = useState(false);
 
@@ -86,7 +84,6 @@ const Home = () => {
                 <FileTable
                     userId={userId}
                     onFolderChange={handleFolderChange}
-                    activeTab={activeTab}
                     refreshTrigger={refreshTrigger}
                 />
             }

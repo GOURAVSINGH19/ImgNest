@@ -98,7 +98,7 @@ const FileUploadForm = ({
 
         try {
             const token = await getToken();
-            const data = await axios.post("/api/files/upload", formData, {
+            await axios.post("/api/files/upload", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                     Accept: 'application/json',
@@ -120,10 +120,9 @@ const FileUploadForm = ({
             if (onUploadSuccess) {
                 onUploadSuccess();
             }
-        } catch (error: any) {
-            const errorMessage = error.response?.data?.error || error.response?.data?.details || "Failed to upload file. Please try again.";
-            setError(errorMessage);
-            toast.error(errorMessage);
+        } catch (error) {
+            console.log("Failed to upload file. Please try again.");
+            toast.error("Falied to Upload File");
         } finally {
             setUploading(false);
         }

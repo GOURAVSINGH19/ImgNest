@@ -3,7 +3,6 @@
 import { Folder, FileText } from "lucide-react";
 import { IKImage } from "imagekitio-next";
 import { File as FileType } from "@/drizzle/db/schema";
-import type { InferSelectModel } from "drizzle-orm";
 
 interface FileIconProps {
   file: FileType;

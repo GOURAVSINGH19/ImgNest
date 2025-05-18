@@ -4,7 +4,7 @@ import { useSignUp } from "@clerk/nextjs"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { signUpSchema } from "@/Schema/signupSchema"
-import { use, useState } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
@@ -50,27 +50,20 @@ export default function SignUpForm() {
         setAuthError(null);
 
         try {
-            const res = await signUp.create({
+            await signUp.create({
                 emailAddress: data.email,
                 password: data.password,
             });
 
-            const result = await signUp.prepareEmailAddressVerification({
+            await signUp.prepareEmailAddressVerification({
                 strategy: "email_code",
             });
             setVerifying(true);
-        } catch (error: any) {
+        } catch (error) {
             console.error("Signup error:", error);
-            if (error.errors?.[0]?.code === "form_identifier_exists") {
-                setAuthError("An account with this email already exists. Please sign in instead.");
-            } else if (error.errors?.[0]?.code === "form_password_pwned") {
-                setAuthError("This password has been compromised in a data breach. Please choose a different password.");
-            } else {
-                setAuthError(
-                    error.errors?.[0]?.message ||
-                    "An error occurred during signup. Please try again."
-                );
-            }
+            setAuthError(
+                "An error occurred during signup. Please try again."
+            )
         } finally {
             setIsSubmitting(false);
         }
@@ -136,7 +129,7 @@ export default function SignUpForm() {
                                 className="text-sm font-medium text-default-900"
                             >
                                 Verification Code
-                            </label> 
+                            </label>
                             <Input
                                 id="verificationCode"
                                 type="text"
@@ -160,7 +153,7 @@ export default function SignUpForm() {
 
                     <div className="mt-6 text-center">
                         <p className="text-sm text-default-500">
-                            Didn't receive a code?{" "}
+                            Didn't receive a code?
                             <button
                                 onClick={async () => {
                                     if (signUp) {
@@ -312,7 +305,7 @@ export default function SignUpForm() {
 
             <CardFooter className="flex justify-center py-4">
                 <p className="text-sm text-default-600">
-                    Already have an account?{" "}
+                    Already have an account?
                     <Link
                         href="/sign-in"
                         className="text-primary hover:underline font-medium"
