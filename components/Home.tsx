@@ -28,7 +28,7 @@ const Home = () => {
 
     return (
         <div className="min-h-screen bg-[#121212] text-white p-6">
-            <div className="grid grid-cols-5 gap-4 mb-10">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
                 <div onClick={() => setOnclick(!Onclick)} className="bg-[#1e1e1e] hover:bg-[#252525] rounded-xl p-6 flex flex-col items-start justify-center cursor-pointer transition">
                     <Upload className="h-6 w-6 mb-2" />
                     <span>Upload or drop</span>

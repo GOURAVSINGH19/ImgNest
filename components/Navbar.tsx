@@ -5,7 +5,8 @@ import { Button } from "@heroui/button";
 import { usePathname, useRouter } from 'next/navigation';
 import { User } from 'lucide-react';
 import { Avatar } from "@heroui/avatar";
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import Dropdown from './Dropdown/DropdownTab';
 interface UserDetails {
     id: Number,
     firstname?: string,
@@ -24,48 +25,11 @@ const Navbar = ({ propuser }: User) => {
     const { signOut } = useClerk();
     const pathname = usePathname();
     const router = useRouter();
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
-    const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
-
-    useEffect(() => {
-        function handleClickOutside(event: MouseEvent) {
-            const dropdown = document.getElementById("user-dropdown")
-            const avatar = document.querySelector("[data-avatar-button]")
-
-            if (dropdown && !dropdown.contains(event.target as Node) && avatar && !avatar.contains(event.target as Node)) {
-                setIsDropdownOpen(false)
-            }
-        }
-
-        document.addEventListener("mousedown", handleClickOutside)
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside)
-        }
-    }, [])
 
     const onDashboardPage =
         pathname === "/dashboard" || pathname?.startsWith("/dashboard/");
-
-
-    // const userDetails = {
-    //     fullName: user
-    //         ? `${user.firstname || ""} ${user.lastname || ""}`.trim()
-    //         : "",
-    //     initials: user
-    //         ? `${user.firstname || ""} ${user.lastname || ""}`
-    //             .trim()
-    //             .split(" ")
-    //             .map((name) => name?.[0] || "")
-    //             .join("")
-    //             .toUpperCase() || "U"
-    //         : "U",
-    //     displayName: user
-    //         ? user.firstname && user.lastname
-    //             ? `${user.firstname} ${user.lastname}`
-    //             : user.firstname || user.username || user.email || "User"
-    //         : "User",
-    //     email: user?.email || "",
-    // };
 
     const handleSignOut = () => {
         signOut(() => {
@@ -73,15 +37,14 @@ const Navbar = ({ propuser }: User) => {
         })
     }
 
-
     return (
         <nav className='w-full max-w-screen-xl mx-auto text-white bg-[#121212]'>
             <div className='px-[1.5em] py-[1.3em] flex justify-between items-center'>
                 <div className='logo'>
-                    <Link href="/">logo</Link>
+                    <Link href="/">INest</Link>
                 </div>
 
-                <div className="flex-between flex items-center gap-5 cursor-pointer">
+                <div className="flex-between flex items-center gap-5">
                     <div className='user-login flex items-center justify-center gap-[1em]'>
                         {!onDashboardPage && <div>
                             {user ?
@@ -105,14 +68,20 @@ const Navbar = ({ propuser }: User) => {
                                     </Link>
                                 }
                                 {onDashboardPage &&
-                                    <div>
-                                        <Avatar
-                                            name={user?.username || ""}
-                                            size="sm"
-                                            src={user?.imageUrl || undefined}
-                                            className="h-8 w-8  flex items-center justify-center flex-shrink-0 shadow-2xl bg-gray-700 rounded-full"
-                                            fallback={<User className="h-4 w-4" />}
-                                        />
+                                    <div className='w-full'>
+                                        <div>
+                                            <Avatar
+                                                name={user?.username || ""}
+                                                size="sm"
+                                                src={user?.imageUrl || undefined}
+                                                className="h-8 w-8  flex items-center justify-center flex-shrink-0 shadow-2xl bg-gray-700 rounded-full"
+                                                fallback={<User className="h-4 w-4" />}
+                                                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                            />
+                                        </div>
+                                        {isDropdownOpen && <div className='absolute top-[3.8rem] shadow-sm shadow-white right-[2rem] rounded-lg p-3 w-[25em] min-h-[10em] z-[100]  bg-white '>
+                                            <Dropdown isDropdownOpen={isDropdownOpen} signOut={handleSignOut}  />
+                                        </div>}
                                     </div>
                                 }
                             </div>

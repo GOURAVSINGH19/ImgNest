@@ -179,7 +179,7 @@ export function LoginForm() {
           <CardFooter className="p-4 text-center">
             <p className="text-sm text-gray-500">
               Don&apos;t have an account?{" "}
-              <Link href="/signup" className="text-blue-500 hover:underline">
+              <Link href="/sign-up" className="text-blue-500 hover:underline">
                 Sign up
               </Link>
             </p>

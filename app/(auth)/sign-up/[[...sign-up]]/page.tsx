@@ -1,10 +1,14 @@
-import Navbar from '@/components/Navbar'
 import SignUpForm from '@/components/SignUpForm'
+import Link from 'next/link'
 
 const SignUpPage = () => {
   return (
     <div className="min-h-screen flex flex-col bg-[#121212]">
-      <Navbar />
+      <div className='w-full p-5'>
+        <Link href="/">
+          <span className='text-white'>Home</span>
+        </Link>
+      </div>
 
       <main className="flex-1 flex justify-center items-center p-6">
         <SignUpForm />

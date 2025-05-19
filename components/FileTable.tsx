@@ -11,6 +11,7 @@ import {
     Download,
     ArchiveRestore,
     Shredder,
+    ListX,
 } from "lucide-react"
 import { Button } from "@heroui/button"
 import { Checkbox } from './ui/checkbox'
@@ -246,7 +247,7 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps
 
     useEffect(() => {
         Fetchdata();
-    }, [refreshTrigger, currentFolder, userId, Fetchdata])
+    }, [refreshTrigger, currentFolder, userId])
 
 
     const filteredFiles = useMemo(() => {
@@ -353,62 +354,64 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps
 
     return (
         <>
-            <div className="mb-8 flex gap-3 items-center">
-                <Button
-                    variant="light"
-                    className={`rounded-full ${currentTab === 'all' ? 'bg-zinc-600 text-white' : 'text-gray-400'} mr-2 px-6 cursor-pointer`}
-                    onClick={() => setCurrentTab('all')}
-                >
-                    <span className="flex items-center">
-                        <Folder className="mr-2 h-4 w-4" />
-                        All
-                    </span>
-                    <Badge
-                        variant="solid"
-                        color="success"
-                        size="sm"
-                        className='text-zinc-200'
-                        aria-label={`${files.filter((file) => !file.isTrash && !file.isStarred).length} files`}
+            <div className="mb-8 flex gap-3 flex-col md:flex-row  items-center justify-center">
+                <div className='flex'>
+                    <Button
+                        variant="light"
+                        className={` rounded-md md:rounded-full ${currentTab === 'all' ? 'bg-zinc-600 text-white' : 'text-gray-400'} mr-2 px-3 md:px-6 cursor-pointer`}
+                        onClick={() => setCurrentTab('all')}
                     >
-                        {files.filter((file) => !file.isTrash).length}
-                    </Badge>
-                </Button>
-                <Button
-                    variant="light"
-                    className={`rounded-full ${currentTab === 'star' ? 'bg-zinc-600 text-white' : 'text-gray-400'} px-6 cursor-pointer`}
-                    onClick={() => setCurrentTab('star')}
-                >
-                    <span className="flex items-center">
-                        <Star className="mr-2 h-4 w-4" />
-                        Starred
+                        <span className="flex items-center">
+                            <Folder className="mr-2 h-4 w-4" />
+                            All
+                        </span>
                         <Badge
-                            variant="flat"
-                            color="warning"
+                            variant="solid"
+                            color="success"
                             size="sm"
-                            aria-label={`${starredCount} starred files`}
+                            className='text-zinc-200'
+                            aria-label={`${files.filter((file) => !file.isTrash && !file.isStarred).length} files`}
                         >
-                            {starredCount}
+                            {files.filter((file) => !file.isTrash).length}
                         </Badge>
-                    </span>
-                </Button>
-                <Button
-                    variant="light"
-                    className={`rounded-full ${currentTab === 'trash' ? 'bg-zinc-600 text-white' : 'text-gray-400'} px-6 cursor-pointer`}
-                    onClick={() => setCurrentTab('trash')}
-                >
-                    <span className="flex items-center">
-                        <Trash className="mr-2 h-4 w-4" />
-                        Trash
-                        <Badge
-                            variant="flat"
-                            color="warning"
-                            size="sm"
-                            aria-label={`${TrashCount} trash files`}
-                        >
-                            {TrashCount}
-                        </Badge>
-                    </span>
-                </Button>
+                    </Button>
+                    <Button
+                        variant="light"
+                        className={`rounded-md md:rounded-full ${currentTab === 'star' ? 'bg-zinc-600 text-white' : 'text-gray-400'} px-3 md:px-6 cursor-pointer`}
+                        onClick={() => setCurrentTab('star')}
+                    >
+                        <span className="flex items-center">
+                            <Star className="mr-2 h-4 w-4" />
+                            Starred
+                            <Badge
+                                variant="flat"
+                                color="warning"
+                                size="sm"
+                                aria-label={`${starredCount} starred files`}
+                            >
+                                {starredCount}
+                            </Badge>
+                        </span>
+                    </Button>
+                    <Button
+                        variant="light"
+                        className={`rounded-md md:rounded-full ${currentTab === 'trash' ? 'bg-zinc-600 text-white' : 'text-gray-400'} px-3 md:px-6 cursor-pointer`}
+                        onClick={() => setCurrentTab('trash')}
+                    >
+                        <span className="flex items-center">
+                            <Trash className="mr-2 h-4 w-4" />
+                            Trash
+                            <Badge
+                                variant="flat"
+                                color="warning"
+                                size="sm"
+                                aria-label={`${TrashCount} trash files`}
+                            >
+                                {TrashCount}
+                            </Badge>
+                        </span>
+                    </Button>
+                </div>
                 <div className="ml-auto flex items-center justify-center w-fit">
                     <Button variant="light" className="text-gray-400 cursor-pointer ml-4">
                         <StretchHorizontal className='w-4 h-4' />
@@ -420,27 +423,21 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps
             </div>
 
             <div className="flex items-center justify-between">
-                <div className="flex items-center ml-3">
-                    <Button
-                        variant="light"
-                        className={`rounded-ful px-6 cursor-pointer`}
-                        onClick={Fetchdata}
-                    >
-                        <span className="flex items-center">
-                            <RefreshCcw className="mr-2 h-4 w-4" />
-                            Refresh
-                        </span>
-                    </Button>
-                </div>
-                <div className="flex items-center gap-3">
-                    <Checkbox
-                        checked={SelectaAllCheckbox}
-                        onClick={handleSelectAll}
-                        className="h-5 w-5"
-                    />
-                    <p>Select all</p>
+                <div className="flex items-center ">
+                    <div className='flex items-center justify-center gap-3 ml-5'>
+                        <Checkbox
+                            checked={SelectaAllCheckbox}
+                            onClick={handleSelectAll}
+                            className="md:h-5 md:w-5 h-4 w-4"
+                        />
+                        <p>Select all</p>
+                    </div>
                     <div className="w-fit h-fit rounded-md flex items-center justify-center">
-                        <Button onClick={handleOnclick} variant="light" className="cursor-pointer">Delete all</Button>
+                        {
+                            SelectaAllCheckbox && <Button onClick={handleOnclick} variant="light" className="cursor-pointer">
+                                <ListX className='w-5 h-5' />
+                            </Button>
+                        }
                         {
                             Onclick &&
                             (
@@ -450,6 +447,18 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps
                             )
                         }
                     </div>
+                </div>
+                <div className="flex items-center ml-3">
+                    <Button
+                        variant="light"
+                        className={`rounded-ful px-6 cursor-pointer bg-zinc-600 text-white rounded-md`}
+                        onClick={Fetchdata}
+                    >
+                        <span className="flex items-center">
+                            <RefreshCcw className="mr-2 h-4 w-4" />
+                            Refresh
+                        </span>
+                    </Button>
                 </div>
             </div>
             {currentTab == "all" &&
@@ -469,22 +478,22 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps
                     ) : (
                         <div className="bg-[#121212] rounded-lg overflow-hidden">
                             {/* Table header */}
-                            <div className="grid grid-cols-6 px-4 py-3 border-b border-gray-800 text-sm text-gray-400">
+                            <div className="flex justify-between md:grid md:grid-cols-6 px-4 py-3 border-b border-gray-800 text-sm text-gray-400">
                                 <div className="col-span-2 flex items-center gap-2">
                                     <span>Name</span>
                                     <ChevronUp className="ml-1 h-4 w-4 mt-1" />
                                 </div>
-                                <div className="flex items-center">Size</div>
-                                <div className="flex items-center">Type</div>
-                                <div className="flex items-center">Activity</div>
-                                <div className="flex items-center justify-center">Actions</div>
+                                <div className=" hidden md:flex  items-center">Size</div>
+                                <div className=" hidden md:flex items-center">Type</div>
+                                <div className="hidden md:flex items-center">Activity</div>
+                                <div className=" mr-5 md:mr-0 flex items-center justify-center">Actions</div>
                             </div>
 
                             {/* Table rows */}
                             <div className="divide-y divide-gray-800">
                                 {
                                     filteredFiles.map((file) => (
-                                        <div key={file.id} className="grid grid-cols-6 px-4 py-3">
+                                        <div key={file.id} className="flex items-center justify-between w-full md:grid md:grid-cols-6 px-4 py-3">
                                             <div onClick={() => handleItemClick(file)} className="cursor-pointer col-span-2 flex items-center gap-2">
                                                 <Checkbox
                                                     checked={selectedFiles.includes(file.id)}
@@ -493,16 +502,16 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps
                                                         handleFileSelect(file.id);
                                                     }}
                                                 />
-                                                <div className="bg-blue-500/20 p-2 rounded mr-3">
+                                                <div className="bg-blue-500/20 p-2 rounded mr-3 hidden md:inline">
                                                     <FileIcon file={file} />
                                                 </div>
                                                 <div>
                                                     <p className="text-white">{file.name}</p>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center text-gray-300">{formatFileSize(file.size)}</div>
-                                            <div className="flex items-center text-gray-300">{file.type}</div>
-                                            <div className="flex items-center text-gray-300">{formatDate(file.createdAt)}</div>
+                                            <div className="hidden md:flex items-center text-gray-300">{formatFileSize(file.size)}</div>
+                                            <div className="hidden md:flex items-center text-gray-300">{file.type}</div>
+                                            <div className="hidden md:flex items-center text-gray-300">{formatDate(file.createdAt)}</div>
                                             <div className='flex items-center justify-center'>
                                                 {!file.isTrash && <Button
                                                     variant="light"
@@ -530,38 +539,30 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps
                                                             className={`h-4 w-4`}
                                                         />
                                                     </span>}
-                                                    {file.isTrash && <span className="hidden sm:inline">
-                                                        {
-                                                            file.isTrash && (
-                                                                <div className='flex justify-center gap-4 items-center'>
-                                                                    <Button
-                                                                        variant="light"
-                                                                        size="sm"
-                                                                        className="min-w-0 px-2 cursor-pointer"
-                                                                        onClick={(e) => { e.preventDefault(); handledeleteTrashFile(file.id) }}
-                                                                    >
-                                                                        <span className="hidden sm:inline">
-                                                                            <Shredder
-                                                                                className={`h-4 w-4`}
-                                                                            />
-                                                                        </span>
-                                                                    </Button>
-                                                                    <Button
-                                                                        variant="light"
-                                                                        size="sm"
-                                                                        className="min-w-0 px-2 cursor-pointer"
-                                                                        onClick={(e) => { e.preventDefault(); handleRecoverFile(file.id) }}
-                                                                    >
-                                                                        <span className="hidden sm:inline">
-                                                                            <ArchiveRestore
-                                                                                className={`h-4 w-4`}
-                                                                            />
-                                                                        </span>
-                                                                    </Button>
-                                                                </div>
-                                                            )
-                                                        }
-                                                    </span>}
+                                                    {file.isTrash && (
+                                                        <div className='flex justify-center gap-4 items-center'>
+                                                            <Button
+                                                                variant="light"
+                                                                size="sm"
+                                                                className="min-w-0 px-2 cursor-pointer"
+                                                                onClick={(e) => { e.preventDefault(); handledeleteTrashFile(file.id) }}
+                                                            >
+                                                                <Shredder
+                                                                    className={`h-4 w-4`}
+                                                                />
+                                                            </Button>
+                                                            <Button
+                                                                variant="light"
+                                                                size="sm"
+                                                                className="min-w-0 px-2 cursor-pointer"
+                                                                onClick={(e) => { e.preventDefault(); handleRecoverFile(file.id) }}
+                                                            >
+                                                                <ArchiveRestore
+                                                                    className={`h-4 w-4`}
+                                                                />
+                                                            </Button>
+                                                        </div>
+                                                    )}
                                                 </span>
                                                 {!file.isTrash && !file.isFolder && (
                                                     <Button
