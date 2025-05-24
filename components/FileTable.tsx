@@ -12,6 +12,7 @@ import {
     ArchiveRestore,
     Shredder,
     ListX,
+    Share,
 } from "lucide-react"
 import { Button } from "@heroui/button"
 import { Checkbox } from './ui/checkbox'
@@ -24,6 +25,7 @@ import Badge from './ui/badge'
 import FolderNavigation from './FolderNavigation'
 import { toast } from 'react-toastify'
 import DeleteRepositoryModal from './DeleteFolder'
+import { useAuth } from '@clerk/nextjs'
 
 
 const formatFileSize = (bytes: number): string => {
@@ -45,6 +47,7 @@ interface allfilesProps {
 }
 
 const FileTable = ({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps) => {
+    const { getToken } = useAuth();
     const [loading, setLoading] = useState(true);
     const [currentFolder, setCurrentFolder] = useState<string | null>(null);
     const [folderPath, setFolderPath] = useState<
@@ -352,6 +355,30 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps
         setOnclick(!Onclick)
     }
 
+
+    const handleShareClick = async (file: FileType) => {
+        try {
+            if (!file) {
+                console.log("file not found");
+            }
+            const token = await getToken();
+            const res = await axios.post(`/api/files/${file.id}/sharefile`, { isPublic: true }, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                }
+            })
+            console.log(res.data);
+            const shareUrl = res.data.url;
+            navigator.clipboard.writeText(shareUrl);
+            toast.success("Share link copied to clipboard");
+        }
+        catch (error) {
+            console.error(error);
+        }
+    };
+
+
     return (
         <>
             <div className="mb-8 flex gap-3 flex-col md:flex-row  items-center justify-center">
@@ -451,11 +478,11 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps
                 <div className="flex items-center ml-3">
                     <Button
                         variant="light"
-                        className={`rounded-ful px-6 cursor-pointer bg-zinc-600 text-white rounded-md`}
+                        className={`rounded-ful px-4 cursor-pointer bg-zinc-600 text-white rounded-md`}
                         onClick={Fetchdata}
                     >
-                        <span className="flex items-center">
-                            <RefreshCcw className="mr-2 h-4 w-4" />
+                        <span className="flex items-center text-sm">
+                            <RefreshCcw className="mr-2 h-3 w-3" />
                             Refresh
                         </span>
                     </Button>
@@ -506,31 +533,40 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps
                                                     <FileIcon file={file} />
                                                 </div>
                                                 <div>
-                                                    <p className="text-white">{file.name}</p>
+                                                    <p className="text-white lg:inline hidden">{file.name}</p>
+                                                    <p className="text-white lg:hidden inline ">{file.name.slice(0, 15)}...</p>
                                                 </div>
                                             </div>
                                             <div className="hidden md:flex items-center text-gray-300">{formatFileSize(file.size)}</div>
                                             <div className="hidden md:flex items-center text-gray-300">{file.type}</div>
                                             <div className="hidden md:flex items-center text-gray-300">{formatDate(file.createdAt)}</div>
                                             <div className='flex items-center justify-center'>
-                                                {!file.isTrash && <Button
-                                                    variant="light"
-                                                    size="sm"
-                                                    className="min-w-0 px-2 cursor-pointer"
-                                                    startContent={
-                                                        <Star
-                                                            className={`h-4 w-4 ${file.isStarred
-                                                                ? "text-yellow-400 fill-current"
-                                                                : "text-gray-400"
-                                                                }`}
-                                                        />
-                                                    }
-                                                    onClick={(e) => { e.preventDefault(); handlestarredFile(file.id) }}
-                                                >
-                                                    <span className="hidden sm:inline">
-                                                        {file.isStarred ? "Unstar" : "Star"}
-                                                    </span>
-                                                </Button>}
+                                                {!file.isTrash &&
+                                                    <>
+                                                        {!file.isFolder && <Button
+                                                            variant="light"
+                                                            size="sm"
+                                                            className="min-w-0 px-2 cursor-pointer"
+                                                            onClick={(e) => { e.preventDefault(); handleShareClick(file) }}
+                                                        >
+                                                            <Share
+                                                                className={`h-4 w-4`}
+                                                            />
+                                                        </Button>}
+                                                        <Button
+                                                            variant="light"
+                                                            size="sm"
+                                                            className="min-w-0 px-2 cursor-pointer"
+                                                            onClick={(e) => { e.preventDefault(); handlestarredFile(file.id) }}
+                                                        >
+                                                            <Star
+                                                                className={`h-4 w-4 ${file.isStarred
+                                                                    ? "text-yellow-400 fill-current"
+                                                                    : "text-gray-400"
+                                                                    }`}
+                                                            />
+                                                        </Button>
+                                                    </>}
                                                 <span
                                                     className="min-w-0 px-2"
                                                 >
@@ -570,9 +606,8 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps
                                                         size="sm"
                                                         onClick={() => handleDownload(file)}
                                                         className="min-w-0 px-2 cursor-pointer"
-                                                        startContent={<Download className="h-4 w-4" />}
                                                     >
-                                                        <span aria-label='Download-btn' className="hidden sm:inline ">Download</span>
+                                                        <Download className="h-4 w-4" />
                                                     </Button>
                                                 )}
                                             </div>

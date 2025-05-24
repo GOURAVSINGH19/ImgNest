@@ -7,6 +7,8 @@ import FileUploadForm from "./FileUploading"
 import CreateFolder from "./CreateFolder"
 
 
+
+
 const Home = () => {
     const { userId } = useAuth();
     const [Onclick, setOnclick] = useState(false);
@@ -22,9 +24,6 @@ const Home = () => {
     const handleFileUploadSuccess = useCallback(() => {
         setRefreshTrigger((prev) => prev + 1);
     }, []);
-
-
-
 
     return (
         <div className="min-h-screen bg-[#121212] text-white p-6">
@@ -74,12 +73,7 @@ const Home = () => {
                         )
                     }
                 </>
-                <div className="bg-[#1e1e1e] hover:bg-[#252525] rounded-xl p-6 flex flex-col items-start justify-center cursor-pointer transition">
-                    <ArrowRight className="h-6 w-6 mb-2" />
-                    <span>Share</span>
-                </div>
             </div>
-            {/* All files section */}
             {userId &&
                 <FileTable
                     userId={userId}

@@ -23,14 +23,14 @@ export async function deleteFolderAndContents(
 
   for (const item of children) {
     if (item.isFolder) {
-      await deleteFolderAndContents(item.id, userId); // ✅ recurse properly
+      await deleteFolderAndContents(item.id, userId); 
     } else {
       if (item.fileUrl) {
         const fileName = item.fileUrl.split("?")[0].split("/").pop();
         try {
           const result = await imagekit.listFiles({ name: fileName, limit: 1 });
           if (result.length > 0) {
-            await imagekit.deleteFile(result[0].createdAt); // Use fileId
+            await imagekit.deleteFile(result[0].createdAt); 
           }
         } catch (err) {
           console.error("ImageKit deletion failed for", fileName, err);
