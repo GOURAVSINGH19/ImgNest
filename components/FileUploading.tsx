@@ -121,7 +121,7 @@ const FileUploadForm = ({
                 onUploadSuccess();
             }
         } catch (error) {
-            console.log("Failed to upload file. Please try again.");
+            console.log("Failed to upload file. Please try again.",error);
             toast.error("Falied to Upload File");
         } finally {
             setUploading(false);
@@ -162,7 +162,7 @@ const FileUploadForm = ({
                                     <button
                                         type="button"
                                         onClick={() => fileInputRef.current?.click()}
-                                        className="text-secondary cursor-pointer font-medium inline bg-transparent border-0 p-0 m-0"
+                                        className="text-secondary cursor-pointer font-medium inline bg-transparent border-0 p-0 m-0 "
                                     >
                                         browse
                                     </button>
@@ -229,7 +229,7 @@ const FileUploadForm = ({
                                 endContent={!uploading && <ArrowRight className="h-4 w-4" />}
                                 onClick={handleUpload}
                                 isLoading={uploading}
-                                className="w-full"
+                                className="w-full "
                                 isDisabled={!!error}
                             >
                                 {uploading ? `Uploading... ${progress}%` : "Upload File"}

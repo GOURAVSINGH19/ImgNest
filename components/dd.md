@@ -13,7 +13,6 @@ import {
     Shredder,
     ListX,
     Share,
-    Copy,
 } from "lucide-react"
 import { Button } from "@heroui/button"
 import { Checkbox } from './ui/checkbox'
@@ -27,6 +26,7 @@ import FolderNavigation from './FolderNavigation'
 import { toast } from 'react-toastify'
 import DeleteRepositoryModal from './DeleteFolder'
 import { useAuth } from '@clerk/nextjs'
+import FlexLayout from './FlexLayout'
 import GridLayout from './GridLayout'
 
 
@@ -511,8 +511,9 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps
                     {filteredFiles.length === 0 ? (
                         <FileEmptyState activeTab={currentTab} />
                     ) : (
-                        <div className="bg-[#121212] overflow-hidden">
-                            <div className={`${!flexlayout ? 'flex justify-between itemc-center' : 'hidden'} px-4 py-3 border-b border-zinc-700 text-sm text-gray-400`}>
+                        <div className="bg-[#121212] rounded-lg overflow-hidden">
+                            {/* Table header */}
+                            <div className={`${flexlayout ? 'flex flex-col' : 'flex justify-between md:grid md:grid-cols-6'} px-4 py-3 border-b border-gray-800 text-sm text-gray-400`}>
                                 <div className="col-span-2 flex items-center gap-2">
                                     <span>Name</span>
                                     <ChevronUp className="ml-1 h-4 w-4 mt-1" />
@@ -523,122 +524,39 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps
                                 <div className="mr-5 md:mr-0 flex items-center justify-center">Actions</div>
                             </div>
 
-                            <div className={`${gridLayout ? " flex-col sm:flex-row flex gap-10 flex-wrap md:flex-nowrap" : "divide-x divide-zinc-700"}`}>
+                            {/* Table rows */}
+                            <div className="divide-y divide-gray-800">
                                 {filteredFiles.map((file) => (
-                                    gridLayout ? (
-                                        <div className='w-[100%] sm:w-[45%] md:w-[40%]'>
-                                            <GridLayout
-                                                key={file.id}
-                                                file={file}
-                                                index={file.id}
-                                                selectedFiles={selectedFiles}
-                                                onItemClick={handleItemClick}
-                                                handleFileSelect={handleFileSelect}
-                                                handleSelectClick={handleShareClick}
-                                                onStarredFile={handlestarredFile}
-                                                onTrashFile={handleTrashFile}
-                                                onDeleteTrashFile={handledeleteTrashFile}
-                                                onRecoverFile={handleRecoverFile}
-                                                onDownload={handleDownload}
-                                            />
-                                        </div>
-                                    ) : (
-                                        <div key={file.id} className={`flex items-center justify-between w-full px-4 py-3 ${selectedFiles.includes(file.id) ? "bg-green-900" : ""}`}>
-                                            <div onClick={() => handleItemClick(file)} className="cursor-pointer col-span-2 flex items-center gap-2">
-                                                <Checkbox
-                                                    checked={selectedFiles.includes(file.id)}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleFileSelect(file.id);
-                                                    }}
-                                                />
-                                                <div className="bg-blue-500/20 p-2 rounded mr-3 hidden md:inline">
-                                                    <FileIcon file={file} />
-                                                </div>
-                                                <div>
-                                                    <p className="text-white xl:inline hidden">{file.name.slice(0, 5)}...</p>
-                                                    <p className="text-white lg:hidden inline">{file.name}</p>
-                                                    <p className="text-white lg:hidden inline ">{file.name.slice(0, 15)}...</p>
-                                                </div>
-                                            </div>
-                                            <div className="hidden md:flex items-center text-gray-300">{formatFileSize(file.size)}</div>
-                                            <div className="hidden md:flex items-center text-gray-300">{file.type}</div>
-                                            <div className="hidden md:flex items-center text-gray-300">{formatDate(file.createdAt)}</div>
-                                            <div className='flex items-center justify-center'>
-                                                {!file.isTrash &&
-                                                    <>
-                                                        {!file.isFolder && <Button
-                                                            variant="light"
-                                                            size="sm"
-                                                            className="min-w-0 px-2 cursor-pointer "
-                                                            onClick={(e) => { e.preventDefault(); handleShareClick(file) }}
-                                                        >
-                                                            <Copy
-                                                                className={`h-4 w-4`}
-                                                            />
-                                                        </Button>}
-                                                        <Button
-                                                            variant="light"
-                                                            size="sm"
-                                                            className="min-w-0 px-2 cursor-pointer "
-                                                            onClick={(e) => { e.preventDefault(); handlestarredFile(file.id) }}
-                                                        >
-                                                            <Star
-                                                                className={`h-4 w-4 ${file.isStarred
-                                                                    ? "text-yellow-400 fill-current"
-                                                                    : "text-gray-400"
-                                                                    }`}
-                                                            />
-                                                        </Button>
-                                                    </>}
-                                                <span
-                                                    className="min-w-0 px-2"
-                                                >
-                                                    {!file.isTrash && <span onClick={(e) => { e.preventDefault(); handleTrashFile(file.id) }} className='cursor-pointer'>
-                                                        <Trash
-                                                            className={`h-4 w-4`}
-                                                        />
-                                                    </span>}
-                                                    {file.isTrash && (
-                                                        <div className='flex justify-center gap-4 items-center'>
-                                                            <Button
-                                                                variant="light"
-                                                                size="sm"
-                                                                className="min-w-0 px-2 cursor-pointer"
-                                                                onClick={(e) => { e.preventDefault(); handledeleteTrashFile(file.id) }}
-                                                            >
-                                                                <Shredder
-                                                                    className={`h-4 w-4`}
-                                                                />
-                                                            </Button>
-                                                            <Button
-                                                                variant="light"
-                                                                size="sm"
-                                                                className="min-w-0 px-2 cursor-pointer"
-                                                                onClick={(e) => { e.preventDefault(); handleRecoverFile(file.id) }}
-                                                            >
-                                                                <ArchiveRestore
-                                                                    className={`h-4 w-4`}
-                                                                />
-                                                            </Button>
-                                                        </div>
-                                                    )}
-                                                </span>
-                                                {!file.isTrash && !file.isFolder && (
-                                                    <Button
-                                                        variant="flat"
-                                                        size="sm"
-                                                        onClick={() => handleDownload(file)}
-                                                        className="min-w-0 px-2 cursor-pointer"
-                                                    >
-                                                        <Download className="h-4 w-4" />
-                                                    </Button>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )
+                                    gridLayout ? <GridLayout key={file.id}
+                                        file={filteredFiles}
+                                        selectedFiles={selectedFiles}
+                                        onItemClick={onItemClick}
+                                        onFileSelect={onFileSelect}
+                                        onShareClick={onShareClick}
+                                        onStarredFile={onStarredFile}
+                                        onTrashFile={onTrashFile}
+                                        onDeleteTrashFile={onDeleteTrashFile}
+                                        onRecoverFile={onRecoverFile}
+                                        onDownload={onDownload}
+                                        formatFileSize={formatFileSize}
+                                        formatDate={formatDate} /> :
+                                        <FlexLayout key={file.id}
+                                            file={file}
+                                            selectedFiles={selectedFiles}
+                                            onItemClick={onItemClick}
+                                            onFileSelect={onFileSelect}
+                                            onShareClick={onShareClick}
+                                            onStarredFile={onStarredFile}
+                                            onTrashFile={onTrashFile}
+                                            onDeleteTrashFile={onDeleteTrashFile}
+                                            onRecoverFile={onRecoverFile}
+                                            onDownload={onDownload}
+                                            formatFileSize={formatFileSize}
+                                            formatDate={formatDate}
+                                        />
+
                                 ))}
-                            </div>
+                            </div >
                         </div >
 
                     )}

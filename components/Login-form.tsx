@@ -89,13 +89,13 @@ export function LoginForm() {
 
             <div className="grid grid-cols-2 gap-4">
               <Button
-                className="flex items-center justify-center gap-2 rounded-xl border-gray-700 bg-black text-white hover:bg-gray-900 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                className="flex items-center justify-center gap-2 rounded-xl btn text-white  transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               >
                 <Github className="h-5 w-5" />
                 <span>GitHub</span>
               </Button>
               <Button
-                className="flex items-center justify-center gap-2 rounded-xl border-gray-700 bg-black text-white hover:bg-gray-900 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                className="flex items-center justify-center gap-2 rounded-xl btn text-white  transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
                   <path
@@ -167,7 +167,7 @@ export function LoginForm() {
               <Button
                 type="submit"
                 color="primary"
-                className="w-full"
+                className="w-full btn"
                 isLoading={isSubmitting}
               >
                 {isSubmitting ? "Signing in..." : "Sign In"}

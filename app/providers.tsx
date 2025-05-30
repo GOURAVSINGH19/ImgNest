@@ -19,7 +19,7 @@ const authenticator = async () => {
 
 export function Providers({ children }: ProviderProps) {
     return (
-        <h1>
+        <div>
             <ImageKitProvider
                 authenticator={authenticator}
                 publicKey={process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY || ""}
@@ -28,6 +28,6 @@ export function Providers({ children }: ProviderProps) {
                     {children}
                 </HeroUIProvider>
             </ImageKitProvider>
-        </h1>
+        </div>
     )
 }

@@ -89,46 +89,6 @@ const CreateFolder = ({
                                         autoFocus
                                     />
                                 </div>
-                                {/* <div className="flex flex-col space-y-1.5 relative">
-                                    <Label htmlFor="parent-folder" className="text-gray-300">
-                                        Parent Folder
-                                    </Label>
-                                    <Select>
-                                        <SelectTrigger id="parent-folder" className="bg-gray-900 border-gray-700 ">
-                                            <SelectValue placeholder="Root (optional)" />
-                                        </SelectTrigger>
-                                        <SelectContent position="popper" className="bg-gray-900 border-gray-700 absolute top-0 left-0 z-[200] text-white">
-                                            <SelectItem value="documents">Documents</SelectItem>
-                                            <SelectItem value="projects">Projects</SelectItem>
-                                            <SelectItem value="shared">Shared</SelectItem>
-                                            <SelectItem value="personal">Personal</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div> */}
-                                {/* <div className="flex flex-col space-y-1.5">
-                                    <Label className="text-gray-300">Who can access</Label>
-                                    <div className="text-sm text-gray-400 mb-2">You can change this later.</div>
-                                    <RadioGroup defaultValue="everyone" className="space-y-2">
-                                        <div className="flex items-start space-x-2 bg-gray-900 p-3 rounded-md">
-                                            <RadioGroupItem value="everyone" id="everyone" className="mt-1" />
-                                            <div className="grid gap-1">
-                                                <Label htmlFor="everyone" className="font-medium">
-                                                    Everyone at Gourav95411
-                                                </Label>
-                                                <p className="text-sm text-gray-400">Share with everyone on your team</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-start space-x-2 bg-gray-900 p-3 rounded-md">
-                                            <RadioGroupItem value="specific" id="specific" className="mt-1" />
-                                            <div className="grid gap-1">
-                                                <Label htmlFor="specific" className="font-medium">
-                                                    Specific people
-                                                </Label>
-                                                <p className="text-sm text-gray-400">Choose who to share this folder with</p>
-                                            </div>
-                                        </div>
-                                    </RadioGroup>
-                                </div> */}
                             </div>
                         </form>
                     </CardContent>
@@ -137,7 +97,7 @@ const CreateFolder = ({
                             variant="flat"
                             color="default"
                             onClick={handleClear}
-                            className='cursor-pointer'
+                            className='cursor-pointer '
                         >
                             Cancel
                         </Button>
@@ -146,6 +106,7 @@ const CreateFolder = ({
                             onClick={handleCreateFolder}
                             isLoading={creatingFolder}
                             isDisabled={!folderName.trim()}
+                            className='rounded-lg text-sm'
                             endContent={!creatingFolder && <ArrowRight className="h-4 w-4 cursor-pointer" />}
                         >
                             Create

@@ -89,7 +89,7 @@ export default function SignUpForm() {
             } else {
                 setVerificationError(`Verification incomplete: status was "${result.status}"`);
             }
-        } catch (error: any) {
+        } catch (error:any) {
             console.error("Verification error:", error);
             setVerificationError(
                 error?.errors?.[0]?.message || "An unexpected error occurred during verification."
@@ -109,7 +109,7 @@ export default function SignUpForm() {
                         Verify Your Email
                     </h1>
                     <p className="text-default-500 text-center">
-                        We've sent a verification code to your email
+                        We have sent a verification code to your email
                     </p>
                 </CardHeader>
 
@@ -144,7 +144,7 @@ export default function SignUpForm() {
                         <Button
                             type="submit"
                             color="primary"
-                            className="w-full"
+                            className="w-full btn"
                             isLoading={isSubmitting}
                         >
                             {isSubmitting ? "Verifying..." : "Verify Email"}
@@ -153,7 +153,7 @@ export default function SignUpForm() {
 
                     <div className="mt-6 text-center">
                         <p className="text-sm text-default-500">
-                            Didn't receive a code?
+                            Did not receive a code?
                             <button
                                 onClick={async () => {
                                     if (signUp) {
@@ -162,7 +162,7 @@ export default function SignUpForm() {
                                         });
                                     }
                                 }}
-                                className="text-primary hover:underline font-medium"
+                                className="text-primary hover:underline font-medium btn"
                             >
                                 Resend code
                             </button>

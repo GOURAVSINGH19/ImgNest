@@ -27,13 +27,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider >
-      <html lang="en">
+    <ClerkProvider>
+      <html lang="en" suppressHydrationWarning>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           <Providers>
-            <ToastContainer
+            {/* <ToastContainer
               position="top-right"
               autoClose={3000}
               hideProgressBar={false}
@@ -43,8 +43,7 @@ export default function RootLayout({
               draggable
               pauseOnHover
               theme="light"
-            />
-
+            /> */}
             {children}
           </Providers>
         </body>

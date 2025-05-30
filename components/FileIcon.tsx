@@ -15,7 +15,7 @@ export default function FileIcon({ file }: FileIconProps) {
   switch (fileType) {
     case "image":
       return (
-        <div className="h-12 w-12 relative overflow-hidden rounded">
+        <div className="h-5 w-5 relative overflow-hidden rounded">
           <IKImage
             path={file.path}
             transformation={[

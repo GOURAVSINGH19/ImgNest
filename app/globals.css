@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -77,6 +76,31 @@
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.705 0.015 286.067);
+
+  --primary-dark-green: #1a2f2a;
+  --accent-green: #00d4aa;
+  --dark-green: #0f1f1c;
+  --success-green: #22c55e;
+
+  --warning-orange: #f59e0b;
+  --error-red: #ef4444;
+  --purple-accent: #8b5cf6;
+  --yellow-gold: #eab308;
+
+  --light-gray: #9ca3af;
+  --white: #ffffff;
+
+  --chart-green: #10b981;
+  --chart-red: #f87171;
+
+  --bg-gradient: linear-gradient(135deg, #1a2f2a 0%, #0f1f1c 100%);
+  --card-gradient: linear-gradient(
+    145deg,
+    #1a2f2a 0%,
+    #162622 50%,
+    #0f1f1c 100%
+  );
+  --button-gradient: #a3a85e;
 }
 
 .dark {
@@ -122,7 +146,8 @@
   }
 }
 
-body,html{
+body,
+html {
   scrollbar-width: none;
 }
 
@@ -147,9 +172,29 @@ body,html{
   }
 }
 
+img {
+  opacity: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .buttton[data-variant="outline"] {
   box-shadow: rgba(0, 0, 0, 0.07) 0px 0px 0px 1px,
     rgba(0, 0, 0, 0.08) 0px 2px 3px -1px, rgba(0, 0, 0, 0.02) 0px 1px 0px 0px;
-    transition-property: background-color, background, border-color, color, fill, stroke, opacity, box-shadow, transform;
-    border-color: rgba(0, 0, 0, 0.07);
+  transition-property: background-color, background, border-color, color, fill,
+    stroke, opacity, box-shadow, transform;
+  border-color: rgba(0, 0, 0, 0.07);
+}
+
+.ph-bg {
+  background-image: linear-gradient(#f3edd81a, #f3edd81a);
+  backdrop-filter: 40px;
+  border: 0.5px solid #f3edd827;
+}
+
+.btn {
+  background: var(--button-gradient);
+  box-shadow: 0 2px 0 0 var(--primary-border);
+  color: white;
 }

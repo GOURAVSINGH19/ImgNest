@@ -3,7 +3,7 @@ import { Button } from '@heroui/button'
 import { ArrowRight, Plus, Settings } from 'lucide-react'
 import Link from 'next/link';
 interface Subnav {
-    isDropdownOpen: Boolean,
+    isDropdownOpen: boolean,
     signOut: () => void;
 }
 
