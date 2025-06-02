@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState, useCallback } from 'react'
 import {
     Star,
     LayoutGrid,
@@ -12,7 +12,6 @@ import {
     ArchiveRestore,
     Shredder,
     ListX,
-    Share,
     Copy,
 } from "lucide-react"
 import { Button } from "@heroui/button"
@@ -29,7 +28,7 @@ import DeleteRepositoryModal from './DeleteFolder'
 import { useAuth } from '@clerk/nextjs'
 import GridLayout from './GridLayout'
 
-
+// Memoize utility functions
 const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -48,185 +47,107 @@ interface allfilesProps {
     refreshTrigger?: number;
 }
 
-const FileTable = ({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps) => {
+const FileTable = React.memo(({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps) => {
     const { getToken } = useAuth();
     const [loading, setLoading] = useState(true);
     const [currentFolder, setCurrentFolder] = useState<string | null>(null);
-    const [folderPath, setFolderPath] = useState<
-        Array<{ id: string; name: string }>
-    >([]);
+    const [folderPath, setFolderPath] = useState<Array<{ id: string; name: string }>>([]);
     const [SelectaAllCheckbox, setSelectAllCheckbox] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
     const [currentTab, setCurrentTab] = useState("all");
     const [files, setFiles] = useState<FileType[]>([]);
     const [Onclick, setOnclick] = useState(false);
     const [flexlayout, setflexLayout] = useState(false);
-    const [gridLayout, setgridLayout] = useState(false)
+    const [gridLayout, setgridLayout] = useState(false);
 
-    const starredCount = useMemo(() => {
-        return files.filter((file) => file.isStarred && !file.isTrash).length;
-    }, [files]);
+    // Memoize computed values
+    const fileStats = useMemo(() => ({
+        starredCount: files.filter((file) => file.isStarred && !file.isTrash).length,
+        trashCount: files.filter((file) => file.isTrash).length,
+        totalSize: files.reduce((acc, file) => acc + (file.size || 0), 0),
+        fileCount: files.filter(file => !file.isFolder).length,
+        folderCount: files.filter(file => file.isFolder).length
+    }), [files]);
 
-    const TrashCount = useMemo(() => {
-        return files.filter((file) => file.isTrash).length;
-    }, [files]);
+    // Memoize filtered files
+    const filteredFiles = useMemo(() => {
+        switch (currentTab) {
+            case "recent":
+                return files
+                    .filter((file) => file.createdAt)
+                    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            case "star":
+                return files.filter((file) => !file.isTrash && file.isStarred);
+            case "trash":
+                return files.filter((file) => file.isTrash && !file.isStarred);
+            case "all":
+            default:
+                return files.filter((file) => !file.isTrash);
+        }
+    }, [files, currentTab]);
 
-
-    const Fetchdata = async () => {
+    // Memoize handlers
+    const Fetchdata = useCallback(async () => {
         setLoading(true);
         try {
             let getUrl = `/api/files?userId=${userId}`;
             if (currentFolder) {
                 getUrl += `&parentId=${currentFolder}`;
             }
-            const res = await axios.get(getUrl)
+            const res = await axios.get(getUrl);
             setFiles(res.data);
         } catch (error) {
-            toast.error("Error in Fetching Data.")
-            console.log("Error in Fetching Data", error)
+            toast.error("Error in Fetching Data.");
+            console.error("Error in Fetching Data", error);
         } finally {
             setLoading(false);
         }
-    }
+    }, [userId, currentFolder]);
 
-    // Handle  Star file
-    const handlestarredFile = async (fileId: string) => {
-        try {
-            await axios.patch(`/api/files/${fileId}/star`);
-
-            setFiles(
-                files.map((file) =>
-                    file.id === fileId ? { ...file, isStarred: !file.isStarred } : file
-                )
-            );
-
-        } catch (error) {
-            console.error("Error starring file:", error);
-            toast.error("Error in Fetching Data")
+    const handleSelectAll = useCallback(() => {
+        setSelectAllCheckbox(!SelectaAllCheckbox);
+        if (!SelectaAllCheckbox) {
+            setSelectedFiles(filteredFiles.map(file => file.id));
+        } else {
+            setSelectedFiles([]);
         }
-    }
+    }, [SelectaAllCheckbox, filteredFiles]);
 
-    //Handle Trash folder
-    const handleTrashFile = async (fileId: string) => {
-        try {
-            await axios.post(`/api/files/${fileId}/trash`)
-            toast.success("Check File in Trash Tab");
-            setFiles(
-                files.map((file) => (
-                    file.id === fileId ? { ...file, isTrash: !file.isTrash } : file
-                ))
-            )
-        } catch (error) {
-            console.error("Error starring file:", error);
-            toast.error("Error in Trashing File");
-        }
-    }
-
-    //Handle Recover File 
-    const handleRecoverFile = async (fileId: string) => {
-        try {
-            const response = await axios.post(`/api/files/${fileId}/trash`);
-
-            if (response.data.success) {
-                // Update the file in the local state
-                setFiles(files.map((file) =>
-                    file.id === fileId ? { ...file, isTrash: false } : file
-                ));
-                toast.success("File restored successfully");
-            }
-        } catch (error) {
-            console.error("Error restoring file:", error);
-            toast.error("Failed to restore file");
-        }
-    }
-
-    //handle Delete trash file
-    const handledeleteTrashFile = async (fileId: string) => {
-        try {
-            const foundFile = files.find(f => f.id === fileId);
-            if (!foundFile) {
-                console.warn("File not found in UI state:", fileId);
-                return;
-            }
-
-            const res = await axios.delete(`/api/files/${fileId}/emptyFolder-trash`);
-
-            if (res.data.success) {
-                setFiles(prev => prev.filter(f => f.id !== fileId));
-                toast.success("File delete SuccessFully");
+    const handleFileSelect = useCallback((fileId: string) => {
+        setSelectedFiles(prev => {
+            if (prev.includes(fileId)) {
+                return prev.filter(id => id !== fileId);
             } else {
-                throw new Error(res.data.error || "Unknown error");
+                return [...prev, fileId];
             }
-        } catch (error) {
-            console.error("Error deleting file:", error);
-            toast.error("We couldn't delete the file. Please try again later.")
-        }
-    };
+        });
+    }, []);
 
-
-    //Handle DeleteAll File
-    const handleDeleteFolders = async () => {
-        try {
-            // First delete all files from the database
-            const response = await axios.delete('/api/files/delete-all');
-
-            if (response.data.success) {
-                // Clear the files list in UI
-                setFiles([]);
-                toast.success("All files and folders deleted successfully");
-            } else {
-                throw new Error(response.data.error || "Failed to delete files");
-            }
-        }
-        catch (error) {
-            console.error("Error in deleting Folders:", error);
-            toast.error("Error in Delete All Folders");
-        }
-    }
-
-
-    const openImageViewer = (file: FileType) => {
-        if (file.type.startsWith("image/")) {
-            const optimizedUrl = `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:q-90,w-1600,h-1200,fo-auto/${file.path}`;
-            window.open(optimizedUrl, "_blank");
-        }
-    };
-
-    // Navigate to a folder
-    const navigateToFolder = (folderId: string, folderName: string) => {
+    const navigateToFolder = useCallback((folderId: string, folderName: string) => {
         setCurrentFolder(folderId);
-        setFolderPath([...folderPath, { id: folderId, name: folderName }]);
-
-        // Notify parent component about folder change
+        setFolderPath(prev => [...prev, { id: folderId, name: folderName }]);
         if (onFolderChange) {
             onFolderChange(folderId);
         }
-    };
+    }, [onFolderChange]);
 
-    // Navigate back to parent folder
-    const navigateUp = () => {
+    const navigateUp = useCallback(() => {
         if (folderPath.length > 0) {
             const newPath = [...folderPath];
             newPath.pop();
             setFolderPath(newPath);
-            const newFolderId =
-                newPath.length > 0 ? newPath[newPath.length - 1].id : null;
+            const newFolderId = newPath.length > 0 ? newPath[newPath.length - 1].id : null;
             setCurrentFolder(newFolderId);
-
-            // Notify parent component about folder change
             if (onFolderChange) {
                 onFolderChange(newFolderId);
             }
         }
-    };
+    }, [folderPath, onFolderChange]);
 
-    // Navigate to specific folder in path
-    const navigateToPathFolder = (index: number) => {
+    const navigateToPathFolder = useCallback((index: number) => {
         if (index < 0) {
             setCurrentFolder(null);
             setFolderPath([]);
-
-            // Notify parent component about folder change
             if (onFolderChange) {
                 onFolderChange(null);
             }
@@ -235,64 +156,30 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps
             setFolderPath(newPath);
             const newFolderId = newPath[newPath.length - 1].id;
             setCurrentFolder(newFolderId);
-
-            // Notify parent component about folder change
             if (onFolderChange) {
                 onFolderChange(newFolderId);
             }
         }
-    };
+    }, [folderPath, onFolderChange]);
 
-    // Handle file or folder click
-    const handleItemClick = (file: FileType) => {
+    const handleItemClick = useCallback((file: FileType) => {
         if (file.isFolder) {
             navigateToFolder(file.id, file.name);
         } else if (file.type.startsWith("image/")) {
             openImageViewer(file);
         }
-    };
+    }, [navigateToFolder]);
 
+    // Effect for data fetching
     useEffect(() => {
         Fetchdata();
-    }, [refreshTrigger, currentFolder, userId])
+    }, [refreshTrigger, currentFolder, userId, Fetchdata]);
 
-
-    const filteredFiles = useMemo(() => {
-        switch (currentTab) {
-            case "recent":
-                return files
-                    .filter((file) => file.createdAt)
-                    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-            case "star":
-                const starredFiles = files.filter((file) => !file.isTrash && file.isStarred);
-                return starredFiles;
-            case "trash":
-                return files.filter((file) => file.isTrash && !file.isStarred);
-
-            case "all":
-            default:
-                return files.filter((file) => !file.isTrash);
+    const openImageViewer = (file: FileType) => {
+        if (file.type.startsWith("image/")) {
+            const optimizedUrl = `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:q-90,w-1600,h-1200,fo-auto/${file.path}`;
+            window.open(optimizedUrl, "_blank");
         }
-    }, [files, currentTab]);
-
-
-    const handleSelectAll = () => {
-        setSelectAllCheckbox(!SelectaAllCheckbox);
-        if (!SelectaAllCheckbox) {
-            setSelectedFiles(filteredFiles.map(file => file.id));
-        } else {
-            setSelectedFiles([]);
-        }
-    };
-
-    const handleFileSelect = (fileId: string) => {
-        setSelectedFiles(prev => {
-            if (prev.includes(fileId)) {
-                return prev.filter(id => id !== fileId)
-            } else {
-                return [...prev, fileId]
-            }
-        })
     };
 
     const handleDownload = async (file: FileType) => {
@@ -383,10 +270,85 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps
     };
 
     const handleLayoutChange = () => {
-        setflexLayout(!flexlayout);
         setgridLayout(!gridLayout);
     }
 
+    // Memoize file operation handlers
+    const handlestarredFile = useCallback(async (fileId: string) => {
+        try {
+            await axios.patch(`/api/files/${fileId}/star`);
+            setFiles(files.map((file) =>
+                file.id === fileId ? { ...file, isStarred: !file.isStarred } : file
+            ));
+        } catch (error) {
+            console.error("Error starring file:", error);
+            toast.error("Error in Fetching Data");
+        }
+    }, [files]);
+
+    const handleTrashFile = useCallback(async (fileId: string) => {
+        try {
+            await axios.post(`/api/files/${fileId}/trash`);
+            toast.success("Check File in Trash Tab");
+            setFiles(files.map((file) =>
+                file.id === fileId ? { ...file, isTrash: !file.isTrash } : file
+            ));
+        } catch (error) {
+            console.error("Error starring file:", error);
+            toast.error("Error in Trashing File");
+        }
+    }, [files]);
+
+    const handleRecoverFile = useCallback(async (fileId: string) => {
+        try {
+            const response = await axios.post(`/api/files/${fileId}/trash`);
+            if (response.data.success) {
+                setFiles(files.map((file) =>
+                    file.id === fileId ? { ...file, isTrash: false } : file
+                ));
+                toast.success("File restored successfully");
+            }
+        } catch (error) {
+            console.error("Error restoring file:", error);
+            toast.error("Failed to restore file");
+        }
+    }, [files]);
+
+    const handledeleteTrashFile = useCallback(async (fileId: string) => {
+        try {
+            const foundFile = files.find(f => f.id === fileId);
+            if (!foundFile) {
+                console.warn("File not found in UI state:", fileId);
+                return;
+            }
+
+            const res = await axios.delete(`/api/files/${fileId}/emptyFolder-trash`);
+            if (res.data.success) {
+                setFiles(prev => prev.filter(f => f.id !== fileId));
+                toast.success("File delete SuccessFully");
+            } else {
+                throw new Error(res.data.error || "Unknown error");
+            }
+        } catch (error) {
+            console.error("Error deleting file:", error);
+            toast.error("We couldn't delete the file. Please try again later.");
+        }
+    }, [files]);
+
+    const handleDeleteFolders = useCallback(async () => {
+        try {
+            const response = await axios.delete('/api/files/delete-all');
+            if (response.data.success) {
+                setFiles([]);
+                toast.success("All files and folders deleted successfully");
+            } else {
+                throw new Error(response.data.error || "Failed to delete files");
+            }
+        } catch (error) {
+            console.error("Error in deleting Folders:", error);
+            toast.error("Error in Delete All Folders");
+        }
+    }, []);
 
     return (
         <>
@@ -423,9 +385,9 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps
                                 variant="flat"
                                 color="warning"
                                 size="sm"
-                                aria-label={`${starredCount} starred files`}
+                                aria-label={`${fileStats.starredCount} starred files`}
                             >
-                                {starredCount}
+                                {fileStats.starredCount}
                             </Badge>
                         </span>
                     </Button>
@@ -441,9 +403,9 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps
                                 variant="flat"
                                 color="warning"
                                 size="sm"
-                                aria-label={`${TrashCount} trash files`}
+                                aria-label={`${fileStats.trashCount} trash files`}
                             >
-                                {TrashCount}
+                                {fileStats.trashCount}
                             </Badge>
                         </span>
                     </Button>
@@ -459,7 +421,7 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps
 
             <div className="flex items-center justify-between">
                 <div className="flex items-center ">
-                    <div className='flex items-center justify-center gap-3 ml-5'>
+                    <div className='flex items-center justify-center gap-3 ml-2'>
                         <Checkbox
                             checked={SelectaAllCheckbox}
                             onClick={handleSelectAll}
@@ -512,23 +474,19 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps
                         <FileEmptyState activeTab={currentTab} />
                     ) : (
                         <div className="bg-[#121212] overflow-hidden">
-                            <div className={`${!flexlayout ? 'flex justify-between itemc-center' : 'hidden'} px-4 py-3 border-b border-zinc-700 text-sm text-gray-400`}>
-                                <div className="col-span-2 flex items-center gap-2">
-                                    <span>Name</span>
-                                    <ChevronUp className="ml-1 h-4 w-4 mt-1" />
-                                </div>
+                            <div className={`${!gridLayout ? 'flex justify-between items-center' : 'hidden'} px-4 py-3 border-b border-zinc-700 text-sm text-gray-400`}>
+                                <div className="flex items-center">Name</div>
                                 <div className="hidden md:flex items-center">Size</div>
                                 <div className="hidden md:flex items-center">Type</div>
                                 <div className="hidden md:flex items-center">Activity</div>
                                 <div className="mr-5 md:mr-0 flex items-center justify-center">Actions</div>
                             </div>
 
-                            <div className={`${gridLayout ? " flex-col sm:flex-row flex gap-10 flex-wrap md:flex-nowrap" : "divide-x divide-zinc-700"}`}>
+                            <div className={`${gridLayout ? " flex-col sm:flex-row flex gap-10 flex-wrap md:flex-nowrap" : "divide-y divide-zinc-700"}`}>
                                 {filteredFiles.map((file) => (
                                     gridLayout ? (
-                                        <div className='w-[100%] sm:w-[45%] md:w-[40%]'>
+                                        <div key={file.id} className='w-[100%] sm:w-[45%] md:w-[40%]'>
                                             <GridLayout
-                                                key={file.id}
                                                 file={file}
                                                 index={file.id}
                                                 selectedFiles={selectedFiles}
@@ -543,97 +501,71 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps
                                             />
                                         </div>
                                     ) : (
-                                        <div key={file.id} className={`flex items-center justify-between w-full px-4 py-3 ${selectedFiles.includes(file.id) ? "bg-green-900" : ""}`}>
-                                            <div onClick={() => handleItemClick(file)} className="cursor-pointer col-span-2 flex items-center gap-2">
+                                        <div key={file.id} className={`flex items-center justify-between px-4 py-3 hover:bg-zinc-800/50 ${selectedFiles.includes(file.id) ? "bg-green-800/4" : ""}`}>
+                                            <div className="col-span-2 flex items-center gap-2">
                                                 <Checkbox
                                                     checked={selectedFiles.includes(file.id)}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleFileSelect(file.id);
-                                                    }}
+                                                    onClick={() => handleFileSelect(file.id)}
+                                                    className="md:h-5 md:w-5 h-4 w-4"
                                                 />
-                                                <div className="bg-blue-500/20 p-2 rounded mr-3 hidden md:inline">
-                                                    <FileIcon file={file} />
-                                                </div>
-                                                <div>
-                                                    <p className="text-white xl:inline hidden">{file.name.slice(0, 5)}...</p>
-                                                    <p className="text-white lg:hidden inline">{file.name}</p>
-                                                    <p className="text-white lg:hidden inline ">{file.name.slice(0, 15)}...</p>
+                                                <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleItemClick(file)}>
+                                                    <FileIcon  file={file} />
+                                                    <span className="text-sm hidden sm:inline">{file.name}</span>
                                                 </div>
                                             </div>
-                                            <div className="hidden md:flex items-center text-gray-300">{formatFileSize(file.size)}</div>
-                                            <div className="hidden md:flex items-center text-gray-300">{file.type}</div>
-                                            <div className="hidden md:flex items-center text-gray-300">{formatDate(file.createdAt)}</div>
-                                            <div className='flex items-center justify-center'>
-                                                {!file.isTrash &&
-                                                    <>
-                                                        {!file.isFolder && <Button
-                                                            variant="light"
-                                                            size="sm"
-                                                            className="min-w-0 px-2 cursor-pointer "
-                                                            onClick={(e) => { e.preventDefault(); handleShareClick(file) }}
-                                                        >
-                                                            <Copy
-                                                                className={`h-4 w-4`}
-                                                            />
-                                                        </Button>}
-                                                        <Button
-                                                            variant="light"
-                                                            size="sm"
-                                                            className="min-w-0 px-2 cursor-pointer "
-                                                            onClick={(e) => { e.preventDefault(); handlestarredFile(file.id) }}
-                                                        >
-                                                            <Star
-                                                                className={`h-4 w-4 ${file.isStarred
-                                                                    ? "text-yellow-400 fill-current"
-                                                                    : "text-gray-400"
-                                                                    }`}
-                                                            />
-                                                        </Button>
-                                                    </>}
-                                                <span
-                                                    className="min-w-0 px-2"
-                                                >
-                                                    {!file.isTrash && <span onClick={(e) => { e.preventDefault(); handleTrashFile(file.id) }} className='cursor-pointer'>
-                                                        <Trash
-                                                            className={`h-4 w-4`}
-                                                        />
-                                                    </span>}
-                                                    {file.isTrash && (
-                                                        <div className='flex justify-center gap-4 items-center'>
-                                                            <Button
-                                                                variant="light"
-                                                                size="sm"
-                                                                className="min-w-0 px-2 cursor-pointer"
-                                                                onClick={(e) => { e.preventDefault(); handledeleteTrashFile(file.id) }}
-                                                            >
-                                                                <Shredder
-                                                                    className={`h-4 w-4`}
-                                                                />
-                                                            </Button>
-                                                            <Button
-                                                                variant="light"
-                                                                size="sm"
-                                                                className="min-w-0 px-2 cursor-pointer"
-                                                                onClick={(e) => { e.preventDefault(); handleRecoverFile(file.id) }}
-                                                            >
-                                                                <ArchiveRestore
-                                                                    className={`h-4 w-4`}
-                                                                />
-                                                            </Button>
-                                                        </div>
-                                                    )}
-                                                </span>
-                                                {!file.isTrash && !file.isFolder && (
-                                                    <Button
-                                                        variant="flat"
-                                                        size="sm"
-                                                        onClick={() => handleDownload(file)}
-                                                        className="min-w-0 px-2 cursor-pointer"
+                                            <div className="hidden md:flex items-center text-sm text-gray-400">
+                                                {formatFileSize(file.size || 0)}
+                                            </div>
+                                            <div className="hidden md:flex items-center text-sm text-gray-400">
+                                                {file.type}
+                                            </div>
+                                            <div className="hidden md:flex items-center text-sm text-gray-400">
+                                                {formatDate(file.createdAt)}
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                {
+                                                    !file.isFolder &&
+                                                    < button
+                                                        onClick={() => handleShareClick(file)}
+                                                        className="p-1 rounded"
                                                     >
-                                                        <Download className="h-4 w-4" />
-                                                    </Button>
+                                                        <Copy className='w-4 h-4 outline-0' />
+                                                    </button>
+                                                }
+                                                <button
+                                                    onClick={() => handlestarredFile(file.id)}
+                                                    className="p-1 rounded"
+                                                >
+                                                    <Star className={`w-4 h-4 ${file.isStarred ? 'fill-yellow-400' : ''}`} />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleTrashFile(file.id)}
+                                                    className="p-1 rounded"
+                                                >
+                                                    <Trash className="w-4 h-4" />
+                                                </button>
+                                                {file.isTrash && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => handledeleteTrashFile(file.id)}
+                                                            className="p-1 rounded"
+                                                        >
+                                                            <Shredder className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleRecoverFile(file.id)}
+                                                            className="p-1 rounded"
+                                                        >
+                                                            <ArchiveRestore className="w-4 h-4" />
+                                                        </button>
+                                                    </>
                                                 )}
+                                                <button
+                                                    onClick={() => handleDownload(file)}
+                                                    className="p-1 rounded"
+                                                >
+                                                    <Download className="w-4 h-4" />
+                                                </button>
                                             </div>
                                         </div>
                                     )
@@ -647,6 +579,8 @@ const FileTable = ({ userId, onFolderChange, refreshTrigger = 0 }: allfilesProps
             }
         </ >
     )
-}
+})
+
+FileTable.displayName = 'FileTable'
 
 export default FileTable

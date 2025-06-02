@@ -6,19 +6,29 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { signUpSchema } from "@/Schema/signupSchema"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@heroui/button";
-import { Input } from "@heroui/input";
-import { Card, CardBody, CardHeader, CardFooter } from "@heroui/card";
-import { Divider } from "@heroui/divider";
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
-    Mail,
-    Lock,
-    Eye,
-    EyeOff,
-} from "lucide-react";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+} from "lucide-react"
 import Link from "next/link"
+import { cn } from "@/lib/utils"
 
-export default function SignUpForm() {
+export default function SignUpForm({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
     const router = useRouter()
     const [Verifying, setVerifying] = useState(false);
     const [VerificationError, setVerificationError] = useState<string | null>(null);
@@ -89,10 +99,10 @@ export default function SignUpForm() {
             } else {
                 setVerificationError(`Verification incomplete: status was "${result.status}"`);
             }
-        } catch (error:any) {
+        } catch (error) {
             console.error("Verification error:", error);
             setVerificationError(
-                error?.errors?.[0]?.message || "An unexpected error occurred during verification."
+                (error as Error).message || "An unexpected error occurred during verification."
             );
         }
         finally {
@@ -103,135 +113,114 @@ export default function SignUpForm() {
 
     if (Verifying) {
         return (
-            <Card className="w-full max-w-md border border-default-200 bg-default-50 shadow-xl">
-                <CardHeader className="flex flex-col gap-1 items-center pb-2">
-                    <h1 className="text-2xl font-bold text-default-900">
-                        Verify Your Email
-                    </h1>
-                    <p className="text-default-500 text-center">
-                        We have sent a verification code to your email
-                    </p>
-                </CardHeader>
+            <div className={cn("flex flex-col gap-6", className)} {...props}>
+                <Card className="bg-[#171717] text-white">
+                    <CardHeader>
+                        <CardTitle>Verify Your Email</CardTitle>
+                        <CardDescription>
+                            We have sent a verification code to your email
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {VerificationError && (
+                            <div className="bg-red-500/10 text-red-500 p-4 rounded-lg mb-6">
+                                <p>{VerificationError}</p>
+                            </div>
+                        )}
 
-                <Divider />
+                        <form onSubmit={handleVerificationSubmit} className="space-y-6">
+                            <div className="grid gap-3">
+                                <Label htmlFor="verificationCode">Verification Code</Label>
+                                <Input
+                                    id="verificationCode"
+                                    type="text"
+                                    placeholder="Enter the 6-digit code"
+                                    value={VerificationCode}
+                                    onChange={(e) => setVerificationCode(e.target.value)}
+                                    className="w-full rounded-lg bg-[#222222] outline-none focus:outline-none ring-0 focus:ring-0 select-none"
+                                    autoFocus
+                                />
+                            </div>
 
-                <CardBody className="py-6">
-                    {VerificationError && (
-                        <div className="bg-danger-50 text-danger-700 p-4 rounded-lg mb-6 flex items-center gap-2">
-                            <p>{VerificationError}</p>
-                        </div>
-                    )}
-
-                    <form onSubmit={handleVerificationSubmit} className="space-y-6">
-                        <div className="space-y-2">
-                            <label
-                                htmlFor="verificationCode"
-                                className="text-sm font-medium text-default-900"
+                            <Button
+                                type="submit"
+                                variant="default"
+                                className="w-full cursor-pointer"
+                                disabled={isSubmitting}
                             >
-                                Verification Code
-                            </label>
-                            <Input
-                                id="verificationCode"
-                                type="text"
-                                placeholder="Enter the 6-digit code"
-                                value={VerificationCode}
-                                onChange={(e) => setVerificationCode(e.target.value)}
-                                className="w-full"
-                                autoFocus
-                            />
-                        </div>
+                                {isSubmitting ? "Verifying..." : "Verify Email"}
+                            </Button>
 
-                        <Button
-                            type="submit"
-                            color="primary"
-                            className="w-full btn"
-                            isLoading={isSubmitting}
-                        >
-                            {isSubmitting ? "Verifying..." : "Verify Email"}
-                        </Button>
-                    </form>
-
-                    <div className="mt-6 text-center">
-                        <p className="text-sm text-default-500">
-                            Did not receive a code?
-                            <button
-                                onClick={async () => {
-                                    if (signUp) {
-                                        await signUp.prepareEmailAddressVerification({
-                                            strategy: "email_code",
-                                        });
-                                    }
-                                }}
-                                className="text-primary hover:underline font-medium btn"
-                            >
-                                Resend code
-                            </button>
-                        </p>
-                    </div>
-                </CardBody>
-            </Card>
+                            <div className="text-center text-sm">
+                                <p className="text-default-500">
+                                    Did not receive a code?{" "}
+                                    <button
+                                        onClick={async () => {
+                                            if (signUp) {
+                                                await signUp.prepareEmailAddressVerification({
+                                                    strategy: "email_code",
+                                                });
+                                            }
+                                        }}
+                                        className="text-primary hover:underline font-medium cursor-pointer"
+                                    >
+                                        Resend code
+                                    </button>
+                                </p>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
+            </div>
         );
     }
 
     return (
-        <Card className="w-full max-w-md border border-default-200 bg-default-50 shadow-xl bg-black text-white rounded-xl">
-            <CardHeader className="flex flex-col gap-1 items-center pb-2">
-                <h1 className="text-2xl font-bold text-default-900">
-                    Create Your Account
-                </h1>
-                <p className="text-default-500 text-center">
-                    Sign up to start managing your images securely
-                </p>
-            </CardHeader>
+        <div className={cn("flex flex-col gap-6", className)} {...props}>
+            <Card className="bg-[#171717] text-white">
+                <CardHeader>
+                    <CardTitle>Create Your Account</CardTitle>
+                    <CardDescription>
+                        Sign up to start managing your images securely
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {authError && (
+                        <div className="bg-red-500/10 text-red-500 p-4 rounded-lg mb-6">
+                            <p>{authError}</p>
+                        </div>
+                    )}
 
-            <Divider />
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                        <div className="grid gap-3">
+                            <Label htmlFor="email">Email</Label>
+                            <Input
+                                id="email"
+                                type="email"
+                                placeholder="your.email@example.com"
+                                {...register("email")}
+                                className="w-full rounded-lg bg-[#222222] outline-none focus:outline-none ring-0 focus:ring-0 select-none"
+                            />
+                            {errors.email && (
+                                <p className="text-sm text-red-500">{errors.email.message}</p>
+                            )}
+                        </div>
 
-            <CardBody className="py-6">
-                {authError && (
-                    <div className="bg-danger-50 text-danger-700 p-4 rounded-lg mb-6 flex items-center gap-2">
-                        <p>{authError}</p>
-                    </div>
-                )}
-
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                    <div className="space-y-2">
-                        <label
-                            htmlFor="email"
-                            className="text-sm font-medium text-default-900"
-                        >
-                            Email
-                        </label>
-                        <Input
-                            id="email"
-                            type="email"
-                            placeholder="your.email@example.com"
-                            startContent={<Mail className="h-4 w-4 text-default-500" />}
-                            isInvalid={!!errors.email}
-                            errorMessage={errors.email?.message}
-                            {...register("email")}
-                            className="w-full"
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <label
-                            htmlFor="password"
-                            className="text-sm font-medium text-default-900"
-                        >
-                            Password
-                        </label>
-                        <Input
-                            id="password"
-                            type={showPassword ? "text" : "password"}
-                            placeholder="••••••••"
-                            startContent={<Lock className="h-4 w-4 text-default-500" />}
-                            endContent={
+                        <div className="grid gap-3">
+                            <Label htmlFor="password">Password</Label>
+                            <div className="relative">
+                                <Input
+                                    id="password"
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="••••••••"
+                                    {...register("password")}
+                                    className="w-full rounded-lg bg-[#222222] outline-none focus:outline-none ring-0 focus:ring-0 select-none pr-10"
+                                />
                                 <Button
-                                    isIconOnly
-                                    variant="light"
                                     size="sm"
                                     onClick={() => setShowPassword(!showPassword)}
                                     type="button"
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#222222] hover:bg-[#222222] outline-none focus:outline-none ring-0 focus:ring-0"
                                 >
                                     {showPassword ? (
                                         <EyeOff className="h-4 w-4 text-default-500" />
@@ -239,33 +228,27 @@ export default function SignUpForm() {
                                         <Eye className="h-4 w-4 text-default-500" />
                                     )}
                                 </Button>
-                            }
-                            isInvalid={!!errors.password}
-                            errorMessage={errors.password?.message}
-                            {...register("password")}
-                            className="w-full"
-                        />
-                    </div>
+                            </div>
+                            {errors.password && (
+                                <p className="text-sm text-red-500">{errors.password.message}</p>
+                            )}
+                        </div>
 
-                    <div className="space-y-2">
-                        <label
-                            htmlFor="passwordConfirmation"
-                            className="text-sm font-medium text-default-900"
-                        >
-                            Confirm Password
-                        </label>
-                        <Input
-                            id="passwordConfirmation"
-                            type={showConfirmPassword ? "text" : "password"}
-                            placeholder="••••••••"
-                            startContent={<Lock className="h-4 w-4 text-default-500" />}
-                            endContent={
+                        <div className="grid gap-3">
+                            <Label htmlFor="passwordConfirmation">Confirm Password</Label>
+                            <div className="relative">
+                                <Input
+                                    id="passwordConfirmation"
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    placeholder="••••••••"
+                                    {...register("passwordConfirmation")}
+                                    className="w-full rounded-lg bg-[#222222] outline-none focus:outline-none ring-0 focus:ring-0 select-none pr-10"
+                                />
                                 <Button
-                                    isIconOnly
-                                    variant="light"
                                     size="sm"
                                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                     type="button"
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#222222] hover:bg-[#222222] outline-none focus:outline-none ring-0 focus:ring-0"
                                 >
                                     {showConfirmPassword ? (
                                         <EyeOff className="h-4 w-4 text-default-500" />
@@ -273,47 +256,35 @@ export default function SignUpForm() {
                                         <Eye className="h-4 w-4 text-default-500" />
                                     )}
                                 </Button>
-                            }
-                            isInvalid={!!errors.passwordConfirmation}
-                            errorMessage={errors.passwordConfirmation?.message}
-                            {...register("passwordConfirmation")}
-                            className="w-full"
-                        />
-                    </div>
-
-                    <div className="space-y-4">
-                        <div className="flex items-start gap-2">
-                            <p className="text-sm text-default-600">
-                                By signing up, you agree to our Terms of Service and Privacy
-                                Policy
-                            </p>
+                            </div>
+                            {errors.passwordConfirmation && (
+                                <p className="text-sm text-red-500">{errors.passwordConfirmation.message}</p>
+                            )}
                         </div>
-                    </div>
 
-                    <Button
-                        type="submit"
-                        color="primary"
-                        className="w-full"
-                        isLoading={isSubmitting}
-                    >
-                        {isSubmitting ? "Creating account..." : "Create Account"}
-                    </Button>
-                </form>
-            </CardBody>
+                        <div className="flex flex-col gap-3">
+                            <Button
+                                type="submit"
+                                variant="default"
+                                className="w-full cursor-pointer btn"
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? "Creating account..." : "Create Account"}
+                            </Button>
+                            <Button variant="outline" className="w-full text-black cursor-pointer">
+                                Sign up with Google
+                            </Button>
+                        </div>
 
-            <Divider />
-
-            <CardFooter className="flex justify-center py-4">
-                <p className="text-sm text-default-600">
-                    Already have an account?
-                    <Link
-                        href="/sign-in"
-                        className="text-primary hover:underline font-medium"
-                    >
-                        Sign in
-                    </Link>
-                </p>
-            </CardFooter>
-        </Card>
+                        <div className="text-center text-sm flex justify-between items-center">
+                            Already have an account?
+                            <Link href="/sign-in" className="underline text-white">
+                                Sign in
+                            </Link>
+                        </div>
+                    </form>
+                </CardContent>
+            </Card>
+        </div>
     );
 }

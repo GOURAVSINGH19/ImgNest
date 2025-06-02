@@ -33,10 +33,10 @@ const formatDate = (date: Date): string => {
   return new Date(date).toLocaleDateString();
 };
 
-const FileIcon = ({ file }: { file: any }) => {
+const FileIcon = ({ file }: { file: FileType }) => {
   if (file.isFolder) return <Folder className="h-8 w-8 text-blue-500" />
 
-  const extension = file.name.split(".").pop()?.toLowerCase()
+  const extension = file.name.split(".").pop()?.toLowerCase() || ""
 
   if (["jpg", "jpeg", "png", "gif", "webp"].includes(extension)) {
     return <ImageIcon className="h-8 w-8 text-green-500" />
@@ -61,9 +61,9 @@ interface FileGridItemProps {
   file: FileType;
   index: string;
   selectedFiles: string[];
-  onItemClick: (file: any) => void;
+  onItemClick: (file: FileType) => void;
   handleFileSelect: (fileId: string) => void;
-  handleSelectClick: (file: any) => void;
+  handleSelectClick: (file: FileType) => void;
   onStarredFile: (fileId: string) => void;
   onTrashFile: (fileId: string) => void;
   onDeleteTrashFile: (fileId: string) => void;

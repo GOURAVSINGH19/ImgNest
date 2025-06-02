@@ -10,9 +10,9 @@ const nextConfig: NextConfig = {
       dynamic: 60,
     },
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  // eslint: {
+  //   ignoreDuringBuilds: true,
+  // },
 };
 
 export default nextConfig;

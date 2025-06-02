@@ -1,27 +1,23 @@
 import SignUpForm from '@/components/SignUpForm'
+import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 const SignUpPage = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-[#121212]">
-      <div className='w-full p-5'>
+    <>
+      <div className='absolute top-2 left-5 p-5'>
         <Link href="/">
-          <span className='text-white'>Home</span>
+          <span className='text-white'>
+            <ArrowLeft className='w-4 h-4' />
+          </span>
         </Link>
       </div>
-
-      <main className="flex-1 flex justify-center items-center p-6">
-        <SignUpForm />
-      </main>
-
-      <footer className=" text-white py-4">
-        <div className="container mx-auto px-6 text-center">
-          <p className="text-sm text-gray-400">
-            &copy; {new Date().getFullYear()} Droply. All rights reserved.
-          </p>
+      <div className="bg-[#0A0A0A] flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
+        <div className="w-full max-w-sm md:max-w-sm mt-10">
+          <SignUpForm />
         </div>
-      </footer>
-    </div>
+      </div>
+    </>
   )
 }
 

@@ -13,7 +13,6 @@ export default function Home() {
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-6 py-16">
-
         <div className="text-center mb-16">
           <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold mb-6">
             <span className="text-orange-400">YOUR</span> <span className="text-white">FILES,</span>
