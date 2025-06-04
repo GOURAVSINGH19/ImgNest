@@ -423,7 +423,7 @@ const FileTable = React.memo(({ userId, onFolderChange, refreshTrigger = 0 }: al
                         <Checkbox
                             checked={SelectaAllCheckbox}
                             onClick={handleSelectAll}
-                            className="md:h-5 md:w-5 h-4 w-4"
+                            className="h-4 w-4"
                         />
                         <p>Select all</p>
                     </div>
@@ -474,9 +474,9 @@ const FileTable = React.memo(({ userId, onFolderChange, refreshTrigger = 0 }: al
                         <div className="bg-[#121212] overflow-hidden">
                             <div className={`${!gridLayout ? 'flex justify-between items-center' : 'hidden'} px-4 py-3 border-b border-zinc-700 text-sm text-gray-400`}>
                                 <div className="flex items-center">Name</div>
-                                <div className="hidden md:flex items-center">Size</div>
+                                <div className="hidden md:flex items-center ml-8">Size</div>
                                 <div className="hidden md:flex items-center">Type</div>
-                                <div className="hidden md:flex items-center">Activity</div>
+                                <div className="hidden md:flex items-center mr-8">Activity</div>
                                 <div className="mr-5 md:mr-0 flex items-center justify-center">Actions</div>
                             </div>
 
@@ -504,11 +504,11 @@ const FileTable = React.memo(({ userId, onFolderChange, refreshTrigger = 0 }: al
                                                 <Checkbox
                                                     checked={selectedFiles.includes(file.id)}
                                                     onClick={() => handleFileSelect(file.id)}
-                                                    className="md:h-5 md:w-5 h-4 w-4"
+                                                    className="md:h-3 md:w-3 h-4 w-4"
                                                 />
                                                 <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleItemClick(file)}>
-                                                    <FileIcon  file={file} />
-                                                    <span className="text-sm hidden sm:inline">{file.name}</span>
+                                                    <FileIcon file={file} />
+                                                    <span className="text-sm hidden sm:inline">{file.name.length > 8 ? `${file.name.slice(0, 5)}...` : file.name}</span>
                                                 </div>
                                             </div>
                                             <div className="hidden md:flex items-center text-sm text-gray-400">

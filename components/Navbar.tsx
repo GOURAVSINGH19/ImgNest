@@ -39,7 +39,7 @@ const Navbar = () => {
                                 <span className='text-sm'>sign out</span>
                             </button>
                             : <Link href="/sign-in">
-                                <button color="primary" className='p-2 md:px-3 cursor-pointer btn mr-4 rounded-md flex items-center justify-center'>
+                                <button color="primary" className='p-2 md:px-4 cursor-pointer btn mr-4 rounded-md flex items-center justify-center'>
                                     <span className='text-sm'>Login</span>
                                 </button>
                             </Link>
