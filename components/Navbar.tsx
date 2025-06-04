@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { User } from 'lucide-react';
 import { Avatar } from "@heroui/avatar";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Dropdown from './Dropdown/DropdownTab';
 import IMG from '@/public/undefined.jpeg';
 

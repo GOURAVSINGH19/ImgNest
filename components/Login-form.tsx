@@ -9,7 +9,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
-import { AlertCircle, Mail, Lock, Eye, EyeOff, Github } from "lucide-react"
+import { Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
 import { toast } from "react-toastify"
 import { Label } from "./ui/label"
@@ -30,7 +30,7 @@ export function LoginForm({
   const { signIn, isLoaded, setActive } = useSignIn();
 
   const [isSubmitting, setisSubmitting] = useState(false);
-  const [authError, setauthError] = useState<string | null>(null);
+  const [_authError, setauthError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const {
     handleSubmit,
@@ -83,6 +83,12 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {errors.identifier && (
+            <p className="text-red-500 mb-4">{errors.identifier.message}</p>
+          )}
+          {errors.password && (
+            <p className="text-red-500 mb-4">{errors.password.message}</p>
+          )}
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-3">
@@ -99,7 +105,7 @@ export function LoginForm({
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
                   <Link
-                    href="/forget-password"
+                    href="/forgetpassword"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                   >
                     Forgot your password?

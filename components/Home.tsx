@@ -6,9 +6,6 @@ import { useAuth } from "@clerk/nextjs"
 import FileUploadForm from "./FileUploading"
 import CreateFolder from "./CreateFolder"
 
-
-
-
 const Home = () => {
     const { userId } = useAuth();
     const [Onclick, setOnclick] = useState(false);

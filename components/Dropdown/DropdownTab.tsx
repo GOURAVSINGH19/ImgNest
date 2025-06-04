@@ -1,15 +1,20 @@
 "use client"
 import { Avatar } from '@heroui/avatar';
 import { Button } from '@heroui/button'
-import { ArrowRight, Plus, Settings, User } from 'lucide-react'
-import Link from 'next/link';
+import { ArrowRight, User } from 'lucide-react'
 import IMG from '@/public/undefined.jpeg';
 import { memo } from 'react';
+
+interface UserType {
+    imageUrl: string | undefined;
+    username: string | null;
+    emailAddresses: { emailAddress: string }[];
+}
 
 interface DropdownProps {
     isDropdownOpen: boolean;
     signOut: () => void;
-    user: any;
+    user: UserType | null | undefined;
 }
 
 const Dropdown: React.FC<DropdownProps> = memo(({ isDropdownOpen, signOut, user }) => {
@@ -43,20 +48,6 @@ const Dropdown: React.FC<DropdownProps> = memo(({ isDropdownOpen, signOut, user 
                     <ArrowRight className="mr-2 h-4 w-4" />
                     Sign out
                 </Button>
-            </div>
-
-            <div className="border-t border-gray-200 p-3">
-                <Link href="/sign-in">
-                    <Button
-                        variant="ghost"
-                        className="w-full justify-start text-gray-700 cursor-pointer"
-                    >
-                        <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                            <Plus className="h-3 w-3 text-gray-600" />
-                        </div>
-                        Add account
-                    </Button>
-                </Link>
             </div>
         </div>
     )

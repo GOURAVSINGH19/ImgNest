@@ -17,8 +17,6 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import {
-  Mail,
-  Lock,
   Eye,
   EyeOff,
 } from "lucide-react"

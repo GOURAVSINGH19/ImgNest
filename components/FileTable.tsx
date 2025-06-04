@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useState, useCallback } from 'react'
 import {
     Star,
     LayoutGrid,
-    ChevronUp,
     StretchHorizontal,
     RefreshCcw,
     Trash,
@@ -57,7 +56,6 @@ const FileTable = React.memo(({ userId, onFolderChange, refreshTrigger = 0 }: al
     const [currentTab, setCurrentTab] = useState("all");
     const [files, setFiles] = useState<FileType[]>([]);
     const [Onclick, setOnclick] = useState(false);
-    const [flexlayout, setflexLayout] = useState(false);
     const [gridLayout, setgridLayout] = useState(false);
 
     // Memoize computed values
