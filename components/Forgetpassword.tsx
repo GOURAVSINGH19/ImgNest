@@ -12,6 +12,7 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "react-toastify"
 import { useSignIn } from "@clerk/nextjs"
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "./InputOTP"
 
 const Forgetpassword = React.memo(() => {
     const router = useRouter();
@@ -81,59 +82,59 @@ const Forgetpassword = React.memo(() => {
         }
     };
 
+    const resendCode = async () => {
+        if (!signIn) return;
+        setVerificationCode("")
+        try {
+            await signIn.create({
+                strategy: "reset_password_email_code",
+                identifier: email,
+            });
+            toast.success("New code sent to your email");
+        } catch (error) {
+            console.error("Error resending code:", error);
+            toast.error("Failed to resend code");
+        }
+    };
+
     if (verifying) {
         return (
-            <div className={"flex flex-col gap-6"}>
-                <Card className="bg-[#171717] text-white">
+            <div className="flex min-h-screen flex-col items-center justify-center p-4  dark:bg-neutral-900">
+                <Card className="w-full max-w-md border-none shadow-lg bg-neutral-900 text-white">
                     <CardHeader>
-                        <CardTitle>Verify Your Email</CardTitle>
-                        <CardDescription>
-                            We have sent a verification code to your email
-                        </CardDescription>
+                        <CardTitle className="text-xl">Verify Your Email</CardTitle>
+                        <CardDescription className="text-neutral-400">We have sent a verification code to your email</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleVerificationSubmit} className="space-y-6">
                             <div className="grid gap-3">
                                 <Label htmlFor="verificationCode">Verification Code</Label>
-                                <Input
-                                    id="verificationCode"
-                                    type="text"
-                                    placeholder="Enter the 6-digit code"
-                                    value={verificationCode}
-                                    onChange={(e) => setVerificationCode(e.target.value)}
-                                    className="w-full rounded-lg bg-[#222222] outline-none focus:outline-none ring-0 focus:ring-0 select-none"
+                                <InputOTP
                                     autoFocus
+                                    maxLength={6}
+                                    value={verificationCode}
+                                    onChange={setVerificationCode}
+                                    render={({ slots }) => (
+                                        <InputOTPGroup>
+                                            {slots.map((slot, index) => (
+                                                <InputOTPSlot key={index} {...slot} className="bg-neutral-800 border-neutral-700 text-white" />
+                                            ))}
+                                        </InputOTPGroup>
+                                    )}
                                 />
                             </div>
 
-                            <Button
-                                type="submit"
-                                variant="default"
-                                className="w-full cursor-pointer"
-                                disabled={isSubmitting}
-                            >
+                            <Button type="submit" className="w-full bg-white text-black hover:bg-neutral-200" disabled={isSubmitting}>
                                 {isSubmitting ? "Verifying..." : "Verify Email"}
                             </Button>
 
                             <div className="text-center text-sm">
-                                <p className="text-default-500">
+                                <p className="text-neutral-400">
                                     Did not receive a code?{" "}
                                     <button
-                                        onClick={async () => {
-                                            if (signIn && email) {
-                                                try {
-                                                    await signIn.create({
-                                                        strategy: "reset_password_email_code",
-                                                        identifier: email
-                                                    });
-                                                    toast.success("Verification code resent successfully");
-                                                } catch (error) {
-                                                    console.error("Error resending code:", error);
-                                                    toast.error("Failed to resend code");
-                                                }
-                                            }
-                                        }}
-                                        className="text-primary hover:underline font-medium cursor-pointer"
+                                        onClick={resendCode}
+                                        type="button"
+                                        className="text-white hover:underline font-medium cursor-pointer"
                                     >
                                         Resend code
                                     </button>

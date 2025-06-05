@@ -10,22 +10,24 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from "@/components/ui/card"
 import {
-  Eye,
-  EyeOff,
+    Eye,
+    EyeOff,
 } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { toast } from "react-toastify"
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "./InputOTP"
 
 export default function SignUpForm({
-  className,
-  ...props
+    className,
+    ...props
 }: React.ComponentProps<"div">) {
     const router = useRouter()
     const [Verifying, setVerifying] = useState(false);
@@ -108,59 +110,59 @@ export default function SignUpForm({
         }
     };
 
+    const resendCode = async () => {
+        if (!signUp) return;
+        setVerificationCode("")
+        try {
+            await signUp.prepareEmailAddressVerification({
+                strategy: "email_code"
+            });
+            toast.success("New code sent to your email");
+        } catch (error) {
+            console.error("Error resending code:", error);
+            toast.error("Failed to resend code");
+        }
+    };
+
 
     if (Verifying) {
         return (
-            <div className={cn("flex flex-col gap-6", className)} {...props}>
-                <Card className="bg-[#171717] text-white">
+            <div className="flex min-h-screen flex-col items-center justify-center p-4  dark:bg-neutral-900">
+                <Card className="w-full max-w-md border-none shadow-lg bg-neutral-900 text-white">
                     <CardHeader>
-                        <CardTitle>Verify Your Email</CardTitle>
-                        <CardDescription>
-                            We have sent a verification code to your email
-                        </CardDescription>
+                        <CardTitle className="text-xl">Verify Your Email</CardTitle>
+                        <CardDescription className="text-neutral-400">We have sent a verification code to your email</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {VerificationError && (
-                            <div className="bg-red-500/10 text-red-500 p-4 rounded-lg mb-6">
-                                <p>{VerificationError}</p>
-                            </div>
-                        )}
-
                         <form onSubmit={handleVerificationSubmit} className="space-y-6">
                             <div className="grid gap-3">
                                 <Label htmlFor="verificationCode">Verification Code</Label>
-                                <Input
-                                    id="verificationCode"
-                                    type="text"
-                                    placeholder="Enter the 6-digit code"
-                                    value={VerificationCode}
-                                    onChange={(e) => setVerificationCode(e.target.value)}
-                                    className="w-full rounded-lg bg-[#222222] outline-none focus:outline-none ring-0 focus:ring-0 select-none"
+                                <InputOTP
                                     autoFocus
+                                    maxLength={6}
+                                    value={VerificationCode}
+                                    onChange={setVerificationCode}
+                                    render={({ slots }) => (
+                                        <InputOTPGroup>
+                                            {slots.map((slot, index) => (
+                                                <InputOTPSlot key={index} {...slot} className="bg-neutral-800 border-neutral-700 text-white" />
+                                            ))}
+                                        </InputOTPGroup>
+                                    )}
                                 />
                             </div>
 
-                            <Button
-                                type="submit"
-                                variant="default"
-                                className="w-full cursor-pointer"
-                                disabled={isSubmitting}
-                            >
+                            <Button type="submit" className="w-full bg-white text-black hover:bg-neutral-200" disabled={isSubmitting}>
                                 {isSubmitting ? "Verifying..." : "Verify Email"}
                             </Button>
 
                             <div className="text-center text-sm">
-                                <p className="text-default-500">
+                                <p className="text-neutral-400">
                                     Did not receive a code?{" "}
                                     <button
-                                        onClick={async () => {
-                                            if (signUp) {
-                                                await signUp.prepareEmailAddressVerification({
-                                                    strategy: "email_code",
-                                                });
-                                            }
-                                        }}
-                                        className="text-primary hover:underline font-medium cursor-pointer"
+                                        onClick={resendCode}
+                                        type="button"
+                                        className="text-white hover:underline font-medium cursor-pointer"
                                     >
                                         Resend code
                                     </button>
@@ -269,18 +271,15 @@ export default function SignUpForm({
                             >
                                 {isSubmitting ? "Creating account..." : "Create Account"}
                             </Button>
-                            <Button variant="outline" className="w-full text-black cursor-pointer">
-                                Sign up with Google
-                            </Button>
                         </div>
 
-                        <div className="text-center text-sm flex justify-between items-center">
-                            Already have an account?
-                            <Link href="/sign-in" className="underline text-white">
-                                Sign in
-                            </Link>
-                        </div>
                     </form>
+                    <div className="text-center text-sm flex justify-between items-center">
+                        Already have an account?
+                        <Link href="/sign-in" className="underline text-white">
+                            Sign in
+                        </Link>
+                    </div>
                 </CardContent>
             </Card>
         </div>

@@ -1,5 +1,5 @@
 'use client';
-import { useClerk, useUser } from '@clerk/nextjs';
+import { useClerk, useUser, useAuth } from '@clerk/nextjs';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { User } from 'lucide-react';
@@ -11,6 +11,7 @@ import IMG from '@/public/undefined.jpeg';
 const Navbar = () => {
     const { user } = useUser();
     const { signOut } = useClerk();
+    const { isSignedIn } = useAuth();
 
     const pathname = usePathname();
     const router = useRouter();
@@ -48,7 +49,12 @@ const Navbar = () => {
 
                     <div className='flex item-center gap-4'>
                         {!onDashboardPage &&
-                            <Link href="/dashboard">
+                            <Link href="/dashboard" onClick={(e) => {
+                                if (!isSignedIn) {
+                                    e.preventDefault();
+                                    router.push('/sign-in');
+                                }
+                            }}>
                                 <button className='cursor-pointer btn p-2 rounded-md text-sm' color="primary" >
                                     Dashboard
                                 </button>
