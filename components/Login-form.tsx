@@ -13,7 +13,6 @@ import { Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
 import { toast } from "react-toastify"
 import { Label } from "./ui/label"
-
 import {
   Card,
   CardContent,
@@ -21,7 +20,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { CustomGoogleOneTap } from "./GoogleOneTap"
 
 export function LoginForm({
   className,
@@ -31,7 +29,7 @@ export function LoginForm({
   const { signIn, isLoaded, setActive } = useSignIn();
 
   const [isSubmitting, setisSubmitting] = useState(false);
-  const [_authError, setauthError] = useState<string | null>(null);
+  const [authError, setauthError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const {
     handleSubmit,
@@ -65,7 +63,7 @@ export function LoginForm({
         setauthError("Sign-in could not be completed. Please try again.");
       }
     } catch (error: unknown) {
-      console.error("Error in login:", error);
+      console.error("Error in login:", error, authError);
       toast.error("Error in login");
       setauthError(
         error instanceof Error ? error.message : "An error occurred during sign-in. Please try again."
@@ -82,7 +80,7 @@ export function LoginForm({
       await signIn.authenticateWithRedirect({
         strategy: 'oauth_google',
         redirectUrl: `${process.env.NEXT_PUBLIC_CLERK_FRONTEND_API}`,
-        redirectUrlComplete: '/dashboard' 
+        redirectUrlComplete: '/dashboard'
       });
     } catch (error) {
       console.error("Google sign-in failed:", error);

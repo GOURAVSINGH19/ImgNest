@@ -70,7 +70,7 @@ export default function SignUpForm({
             });
             setVerifying(true);
         } catch (error) {
-            console.error("Signup error:", error);
+            console.error("Signup error:", error, VerificationError);
             setAuthError(
                 "An error occurred during signup. Please try again."
             )
