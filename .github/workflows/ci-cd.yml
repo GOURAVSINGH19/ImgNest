@@ -19,6 +19,19 @@ jobs:
         node-version: '18'
         cache: 'npm'
 
+    - name: Create .env file
+      run: |
+        cat << EOF > .env
+        DATABASE_URL=${{ secrets.DATABASE_URL }}
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+        CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }}
+        NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY=${{ secrets.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY }}
+        IMAGEKIT_PRIVATE_KEY=${{ secrets.IMAGEKIT_PRIVATE_KEY }}
+        NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT=${{ secrets.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT }}
+        NEXT_PUBLIC_CLERK_SIGN_IN_URL=${{ secrets.NEXT_PUBLIC_CLERK_SIGN_IN_URL }}
+        NEXT_PUBLIC_CLERK_SIGN_UP_URL=${{ secrets.NEXT_PUBLIC_CLERK_SIGN_UP_URL }}
+        EOF
+
     - name: Install dependencies
       run: npm ci
 
@@ -30,8 +43,6 @@ jobs:
 
     - name: Build
       run: npm run build
-      env:
-        NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
 
   deploy:
     needs: build-and-test
@@ -47,16 +58,25 @@ jobs:
         node-version: '18'
         cache: 'npm'
 
+    - name: Create .env file
+      run: |
+        cat << EOF > .env
+        DATABASE_URL=${{ secrets.DATABASE_URL }}
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+        CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }}
+        NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY=${{ secrets.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY }}
+        IMAGEKIT_PRIVATE_KEY=${{ secrets.IMAGEKIT_PRIVATE_KEY }}
+        NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT=${{ secrets.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT }}
+        NEXT_PUBLIC_CLERK_SIGN_IN_URL=${{ secrets.NEXT_PUBLIC_CLERK_SIGN_IN_URL }}
+        NEXT_PUBLIC_CLERK_SIGN_UP_URL=${{ secrets.NEXT_PUBLIC_CLERK_SIGN_UP_URL }}
+        EOF
+
     - name: Install dependencies
       run: npm ci
 
     - name: Build
       run: npm run build
-      env:
-        # Add your environment variables here
-        NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
 
-    # Add deployment steps based on your hosting platform
     - name: Deploy to Vercel
       uses: amondnet/vercel-action@v20
       with:
