@@ -73,23 +73,6 @@ export function LoginForm({
     }
   }
 
-  const handleGoogleLogin = async () => {
-    if (!isLoaded || !signIn) return;
-
-    try {
-      await signIn.authenticateWithRedirect({
-        strategy: 'oauth_google',
-        redirectUrl: `${process.env.NEXT_PUBLIC_CLERK_FRONTEND_API}`,
-        redirectUrlComplete: '/dashboard'
-      });
-    } catch (error) {
-      console.error("Google sign-in failed:", error);
-      toast.error("Google sign-in failed. Try again.");
-    }
-  };
-
-
-
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -163,14 +146,6 @@ export function LoginForm({
               </div>
             </div>
           </form>
-          <Button
-            variant="outline"
-            className="w-full mt-5 text-black"
-            onClick={handleGoogleLogin}
-          >
-            Login with Google
-          </Button>
-
           <div className="mt-4 text-center text-sm flex justify-between items-center">
             Don&apos;t have an account?
             <Link href="/sign-up" className="underline underline-offset-4">

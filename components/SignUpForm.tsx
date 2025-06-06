@@ -274,7 +274,7 @@ export default function SignUpForm({
                         </div>
 
                     </form>
-                    <div className="text-center text-sm flex justify-between items-center">
+                    <div className="text-center text-sm mt-4 flex justify-between items-center">
                         Already have an account?
                         <Link href="/sign-in" className="underline text-white">
                             Sign in

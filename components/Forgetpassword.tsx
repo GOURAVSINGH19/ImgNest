@@ -71,8 +71,10 @@ const Forgetpassword = React.memo(() => {
             });
 
             if (result.status === "needs_new_password") {
+                router.push('/changepassword');
                 toast.success("Code verified successfully!");
-                router.push('/change-password');
+            } else {
+                toast.error("Verification failed. Please try again.");
             }
         } catch (error) {
             console.error("Verification error:", error);

@@ -9,11 +9,12 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "react-toastify"
-import { useSignIn } from "@clerk/nextjs"
+import { useSignIn, useClerk } from "@clerk/nextjs"
 
 const ChangePassword = React.memo(() => {
     const router = useRouter();
     const { signIn, isLoaded } = useSignIn();
+    const { signOut } = useClerk();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const {
@@ -41,6 +42,7 @@ const ChangePassword = React.memo(() => {
             });
 
             if (result.status === "complete") {
+                await signOut();
                 toast.success("Password reset successful!");
                 router.push("/sign-in");
             }
