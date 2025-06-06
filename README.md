@@ -18,6 +18,8 @@ React Toastify – Toast notifications
 
 Axios – Promise-based HTTP client
 
+cicd - continuous integration and continuous delivery 
+
 ```
 🔧 Backend
 ```
