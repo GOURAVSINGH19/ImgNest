@@ -27,7 +27,7 @@ const FileUploadForm = ({
     currentFolder = null,
 }: FileUploadFormProps) => {
     const { getToken } = useAuth();
-    const [file, setFile] = useState<File | null>(null);
+    const [files, setFiles] = useState<File[]>([]);
     const [uploading, setUploading] = useState(false);
     const [progress, setProgress] = useState(0);
     const [error, setError] = useState<string | null>(null);
@@ -42,26 +42,28 @@ const FileUploadForm = ({
     }
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const selectedFile = e.target.files[0];
-            if (selectedFile.size > 5 * 1024 * 1024) {
-                setError("File size exceeds 5MB limit");
+        if (e.target.files && e.target.files.length > 0) {
+            const filesArray = Array.from(e.target.files);
+            const oversized = filesArray.find(f => f.size > 5 * 1024 * 1024);
+            if (oversized) {
+                setError(`File "${oversized.name}" exceeds 5MB limit`);
                 return;
             }
-            setFile(selectedFile);
+            setFiles(filesArray);
             setError(null);
         }
     };
 
     const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            const droppedFile = e.dataTransfer.files[0];
-            if (droppedFile.size > 5 * 1024 * 1024) {
-                setError("File size exceeds 5MB limit");
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            const filesArray = Array.from(e.dataTransfer.files);
+            const oversized = filesArray.find(f => f.size > 5 * 1024 * 1024);
+            if (oversized) {
+                setError(`File "${oversized.name}" exceeds 5MB limit`);
                 return;
             }
-            setFile(droppedFile);
+            setFiles(filesArray);
             setError(null);
         }
     };
@@ -71,7 +73,7 @@ const FileUploadForm = ({
     };
 
     const clearFile = () => {
-        setFile(null);
+        setFiles([]);
         setError(null);
         if (fileInputRef.current) {
             fileInputRef.current.value = "";
@@ -79,14 +81,16 @@ const FileUploadForm = ({
     };
 
     const handleUpload = async () => {
-        if (!file) return;
+        if (!files.length) return;
         if (!userId) {
             setError("Authentication error. Please try refreshing the page.");
             return;
         }
 
         const formData = new FormData();
-        formData.append("file", file, file.name);
+        files.forEach(f => {
+            formData.append("files", f, f.webkitRelativePath || f.name);
+        });
         formData.append("userId", userId);
         if (currentFolder) {
             formData.append("parentId", currentFolder);
@@ -114,15 +118,15 @@ const FileUploadForm = ({
                 },
             });
 
-            toast.success(`${file.name} has been uploaded successfully..`);
+            toast.success(`Files have been uploaded successfully.`);
             clearFile();
 
             if (onUploadSuccess) {
                 onUploadSuccess();
             }
         } catch (error) {
-            console.log("Failed to upload file. Please try again.",error);
-            toast.error("Falied to Upload File");
+            console.log("Failed to upload files. Please try again.", error);
+            toast.error("Failed to Upload Files");
         } finally {
             setUploading(false);
         }
@@ -134,12 +138,12 @@ const FileUploadForm = ({
                 <div className="flex gap-2 mb-2">
                     <Button
                         color="primary"
-                        variant="flat"
+                        variant="shadow"
                         startContent={<FileUp className="h-4 w-4" />}
                         onClick={() => fileInputRef.current?.click()}
-                        className="flex-1"
+                        className="flex-1 rounded-md"
                     >
-                        Add File
+                        Add Multiples File
                     </Button>
                 </div>
 
@@ -148,33 +152,35 @@ const FileUploadForm = ({
                     onDragOver={handleDragOver}
                     className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${error
                         ? "border-danger/30 bg-danger/5"
-                        : file
+                        : files.length
                             ? "border-primary/30 bg-primary/5"
                             : "border-default-300 hover:border-primary/5"
                         }`}
                 >
-                    {!file ? (
+                    {!files.length ? (
                         <div className="space-y-3">
-                            <FileUp className="h-12 w-12 mx-auto text-primary/70" />
+                            <FileUp className="h-12 w-12 mx-auto  text-white" />
                             <div>
                                 <p className="text-default-600">
                                     Drag and drop your file here, or{" "}
                                     <button
                                         type="button"
                                         onClick={() => fileInputRef.current?.click()}
-                                        className="text-secondary cursor-pointer font-medium inline bg-transparent border-0 p-0 m-0 "
+                                        className="text-blue-400 cursor-pointer font-medium inline bg-transparent border-0 p-0 m-0 "
                                     >
                                         browse
                                     </button>
                                 </p>
-                                <p className="text-xs text-default-500 mt-1">Images and PDFs up to 5MB</p>
                             </div>
-                            <Input
+                            <input
                                 type="file"
                                 ref={fileInputRef}
                                 onChange={handleFileChange}
                                 className="hidden"
                                 accept="image/*,.pdf"
+                                multiple
+                                // @ts-ignore
+                                webkitdirectory
                             />
                         </div>
                     ) : (
@@ -186,15 +192,19 @@ const FileUploadForm = ({
                                     </div>
                                     <div className="text-left">
                                         <p className="text-sm font-medium truncate max-w-[180px]">
-                                            {file.name}
+                                            {files.length} file{files.length > 1 ? 's' : ''} selected
                                         </p>
-                                        <p className="text-xs text-default-500">
-                                            {file.size < 1024
-                                                ? `${file.size} B`
-                                                : file.size < 1024 * 1024
-                                                    ? `${(file.size / 1024).toFixed(1)} KB`
-                                                    : `${(file.size / (1024 * 1024)).toFixed(1)} MB`}
-                                        </p>
+                                        <ul className="text-xs text-default-500 max-h-20 overflow-y-auto">
+                                            {files.map(f => (
+                                                <li key={f.name + f.size} className="truncate">
+                                                    {f.webkitRelativePath || f.name} ({f.size < 1024
+                                                        ? `${f.size} B`
+                                                        : f.size < 1024 * 1024
+                                                            ? `${(f.size / 1024).toFixed(1)} KB`
+                                                            : `${(f.size / (1024 * 1024)).toFixed(1)} MB`})
+                                                </li>
+                                            ))}
+                                        </ul>
                                     </div>
                                 </div>
                                 <Button
@@ -232,7 +242,7 @@ const FileUploadForm = ({
                                 className="w-full "
                                 isDisabled={!!error}
                             >
-                                {uploading ? `Uploading... ${progress}%` : "Upload File"}
+                                {uploading ? `Uploading... ${progress}%` : "Upload Files"}
                             </Button>
                         </div>
                     )}
