@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input"
 import { FolderIcon } from "lucide-react"
 import { useAuth } from '@clerk/nextjs';
 import { toast } from 'react-toastify';
-import { useRouter } from 'next/navigation';
 
 interface FolderCreationProps {
     userId: string;
@@ -55,7 +54,7 @@ const CreateFolder = ({
             toast.success(`Folder "${folderName}" has been created successfully.`);
 
             setFolderName("");
-            if (onUploadSuccess) {
+            if (onUploadSuccess) {            /* eslint-disable @typescript-eslint/no-unused-vars */
                 onUploadSuccess();
             }
         } catch (error) {
