@@ -23,7 +23,7 @@ export default function FolderNavigation({
                 onClick={navigateUp}
                 isDisabled={folderPath.length === 0}
             >
-                <ChevronLeft className="h-4 w-4 mt-1/9 ml-2"  />
+                <ChevronLeft className="h-4 w-4 mt-1/9 ml-2" />
             </Button>
             <Button
                 variant="flat"

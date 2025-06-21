@@ -1,6 +1,6 @@
 "use client"
-import { useState } from 'react'
-import { ArrowRight} from 'lucide-react';
+import { useEffect, useState } from 'react'
+import { ArrowRight } from 'lucide-react';
 import axios from 'axios';
 import { Button } from "@heroui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { FolderIcon } from "lucide-react"
 import { useAuth } from '@clerk/nextjs';
 import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
 
 interface FolderCreationProps {
     userId: string;
@@ -22,6 +23,13 @@ const CreateFolder = ({
     const { getToken } = useAuth();
     const [folderName, setFolderName] = useState("");
     const [creatingFolder, setCreatingFolder] = useState(false);
+    const [folderPath, setFolderPath] = useState("")
+
+    useEffect(() => {
+        if (folderPath) {
+            localStorage.setItem("folderPath", folderPath);
+        }
+    }, [creatingFolder])
 
     const handleCreateFolder = async () => {
 
@@ -34,7 +42,7 @@ const CreateFolder = ({
 
         try {
             const token = await getToken();
-            await axios.post("/api/folders/create", {
+            const res = await axios.post("/api/folders/create", {
                 name: folderName.trim(),
                 userId: userId,
                 parentId: currentFolder,
@@ -43,7 +51,7 @@ const CreateFolder = ({
                     Authorization: `Bearer ${token}`,
                 }
             });
-
+            setFolderPath(res.data.folder.path)
             toast.success(`Folder "${folderName}" has been created successfully.`);
 
             setFolderName("");

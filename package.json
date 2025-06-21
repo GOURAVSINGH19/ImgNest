@@ -10,8 +10,7 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "tsx ./lib/db/migrate.ts",
-    "type-check": "tsc --noEmit"
+    "db:migrate": "tsx ./lib/db/migrate.ts"
   },
   "dependencies": {
     "@clerk/clerk-sdk-node": "^4.13.23",
@@ -41,7 +40,7 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tabs": "^1.1.11",
     "@types/nodemailer": "^6.4.17",
-    "axios": "^1.9.0",
+    "axios": "^1.10.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",

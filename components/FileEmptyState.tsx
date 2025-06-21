@@ -20,7 +20,7 @@ export default function FileEmptyState({ activeTab }: FileEmptyStateProps) {
         </h3>
         <p className="text-zinc-600 mt-2 max-w-md mx-auto">
           {activeTab === "all" &&
-            "Upload your first file to get started with your personal cloud storage"}
+            "No Files or Folders"}
           {activeTab === "star" &&
             "Mark important files with a star to find them quickly when you need them"}
           {activeTab === "trash" &&

@@ -2,7 +2,6 @@
 import { useState, useRef } from "react";
 import { Button } from "@heroui/button";
 import { Progress } from "@/components/ui/progress";
-import { Input } from "@heroui/input";
 import {
     Upload,
     X,
@@ -179,7 +178,7 @@ const FileUploadForm = ({
                                 className="hidden"
                                 accept="image/*,.pdf"
                                 multiple
-                                // @ts-ignore
+                                // @ts-expect-error
                                 webkitdirectory
                             />
                         </div>

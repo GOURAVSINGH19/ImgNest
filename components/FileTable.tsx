@@ -26,8 +26,6 @@ import { toast } from 'react-toastify'
 import DeleteRepositoryModal from './DeleteFolder'
 import { useAuth } from '@clerk/nextjs'
 import GridLayout from './GridLayout'
-
-// Memoize utility functions
 const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -472,6 +470,7 @@ const FileTable = React.memo(({ userId, onFolderChange, refreshTrigger = 0 }: al
                         <FileEmptyState activeTab={currentTab} />
                     ) : (
                         <div className="bg-[#121212] overflow-hidden">
+
                             <div className={`${!gridLayout ? 'flex justify-between items-center' : 'hidden'} px-4 py-3 border-b border-zinc-700 text-sm text-gray-400`}>
                                 <div className="flex items-center">Name</div>
                                 <div className="hidden md:flex items-center ml-8">Size</div>
@@ -479,7 +478,6 @@ const FileTable = React.memo(({ userId, onFolderChange, refreshTrigger = 0 }: al
                                 <div className="hidden md:flex items-center mr-8">Activity</div>
                                 <div className="mr-5 md:mr-0 flex items-center justify-center">Actions</div>
                             </div>
-
                             <div className={`${gridLayout ? " flex-col sm:flex-row flex gap-10 flex-wrap md:flex-nowrap" : "divide-y divide-zinc-700"}`}>
                                 {filteredFiles.map((file) => (
                                     gridLayout ? (
