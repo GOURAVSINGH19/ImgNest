@@ -178,7 +178,6 @@ const FileUploadForm = ({
                                 className="hidden"
                                 accept="image/*,.pdf"
                                 multiple
-                                // @ts-expect-error
                                 webkitdirectory
                             />
                         </div>
