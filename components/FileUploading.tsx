@@ -178,7 +178,7 @@ const FileUploadForm = ({
                                 className="hidden"
                                 accept="image/*,.pdf"
                                 multiple
-                                webkitdirectory
+                                {...{ webkitdirectory: true }}
                             />
                         </div>
                     ) : (
