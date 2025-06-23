@@ -7,6 +7,7 @@ import { Avatar } from "@heroui/avatar";
 import { useState } from 'react';
 import Dropdown from './Dropdown/DropdownTab';
 import IMG from '@/public/undefined.jpeg';
+import ShowCLIToken from './Showmyclitoken';
 
 const Navbar = () => {
     const { user } = useUser();
@@ -29,10 +30,10 @@ const Navbar = () => {
     return (
         <nav className='w-full max-w-screen-xl mx-auto text-white bg-[#121212]'>
             <div className='px-[1.5em] py-[1.3em] flex justify-between items-center'>
-                <div className='logo'>
+                <div className='logo flex items-center justify-center gap-[1.5rem]'>
                     <Link href="/">INest</Link>
+                    {onDashboardPage && <ShowCLIToken/>}
                 </div>
-
                 <div className="flex-between flex items-center gap-5">
                     {!onDashboardPage && <div>
                         {user ?

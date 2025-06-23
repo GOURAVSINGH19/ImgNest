@@ -118,3 +118,24 @@ DELETE	/api/folders/[folderId]	Delete a folder
 ```
 
 🤝 Like the repo if you like
+
+## Using the CLI with Clerk Session Token
+
+To use the CLI, you need your Clerk session token. Follow these steps:
+
+1. **Log in to the web app.**
+2. **Click the `Token` button** (usually in the navbar or profile area) to reveal your CLI token. This uses the `ShowCLIToken` component.
+3. **Copy the token** to your clipboard.
+4. **Login to the CLI with your token:**
+   ```bash
+   Inest login --token <your_clerk_session_token>
+   ```
+5. **Now you can upload files or list your files using the CLI!**
+
+Example:
+```bash
+Inest upload myfile.jpg
+Inest list
+```
+
+**Note:** Keep your token secure. If you log out of the web app, your token may expire and you will need to repeat these steps.

@@ -21,7 +21,9 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const fileEntries = formData.getAll("files");
     const formuserId = formData.get("userId") as string;
-    const formparentId = formData.get("parentId") ? formData.get("parentId") as string : null;
+    const formparentId = formData.get("parentId")
+      ? (formData.get("parentId") as string)
+      : null;
 
     if (formuserId !== userId) {
       return NextResponse.json({ error: "Unauthorized user" }, { status: 401 });
@@ -52,7 +54,7 @@ export async function POST(request: NextRequest) {
           );
         }
       } catch (error) {
-        console.log("Error in Uploading File",error)
+        console.log("Error in Uploading File", error);
         return NextResponse.json(
           { error: "Error validating parent folder" },
           { status: 500 }
@@ -64,7 +66,7 @@ export async function POST(request: NextRequest) {
     for (const file of fileEntries) {
       if (!(file instanceof File)) continue;
       if (file.size > 5 * 1024 * 1024) {
-        continue; 
+        continue;
       }
       try {
         let fileBuffer: Buffer;
@@ -80,9 +82,13 @@ export async function POST(request: NextRequest) {
         const folderPath = formparentId
           ? `/droply/${userId}/folder/${formparentId}`
           : `/droply/${userId}`;
-        if (!process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY?.startsWith('pk_') || 
-            !process.env.IMAGEKIT_PRIVATE_KEY?.startsWith('private_') || 
-            !process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT?.startsWith('https://ik.imagekit.io/')) {
+        if (
+          !process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY?.startsWith("pk_") ||
+          !process.env.IMAGEKIT_PRIVATE_KEY?.startsWith("private_") ||
+          !process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT?.startsWith(
+            "https://ik.imagekit.io/"
+          )
+        ) {
           continue;
         }
         const Uploadresponse = await imagekit.upload({
@@ -112,12 +118,18 @@ export async function POST(request: NextRequest) {
       }
     }
     if (!uploadedFiles.length) {
-      return NextResponse.json({ error: "No valid files uploaded" }, { status: 400 });
+      return NextResponse.json(
+        { error: "No valid files uploaded" },
+        { status: 400 }
+      );
     }
     return NextResponse.json(uploadedFiles);
   } catch (error) {
     return NextResponse.json(
-      { error: "File upload failed", details: error instanceof Error ? error.message : "Unknown error" },
+      {
+        error: "File upload failed",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
       { status: 500 }
     );
   }

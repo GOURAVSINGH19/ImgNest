@@ -19,8 +19,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // how we can access data form database
-    // fetch files from database
 
     let userFiles;
     if (parentId) {
