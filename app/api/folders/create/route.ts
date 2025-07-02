@@ -45,8 +45,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // validation using sql (and,eq) for creating folder
-
     if (parentId) {
       const [parentFolder] = await db
         .select()

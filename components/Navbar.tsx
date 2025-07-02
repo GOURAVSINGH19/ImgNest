@@ -32,7 +32,6 @@ const Navbar = () => {
             <div className='px-[1.5em] py-[1.3em] flex justify-between items-center'>
                 <div className='logo flex items-center justify-center gap-[1.5rem]'>
                     <Link href="/">INest</Link>
-                    {onDashboardPage && <ShowCLIToken/>}
                 </div>
                 <div className="flex-between flex items-center gap-5">
                     {!onDashboardPage && <div>

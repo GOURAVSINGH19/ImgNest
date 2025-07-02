@@ -143,9 +143,3 @@ Required environment variables:
 - `/api/files/{id}/star` - Star/unstar files
 - `/api/files/{id}/trash` - Trash operations
 - `/api/files/delete-all` - Bulk deletion
-
-## Contributing
-Please read the contributing guidelines before submitting pull requests.
-
-## License
-[Add license information] 

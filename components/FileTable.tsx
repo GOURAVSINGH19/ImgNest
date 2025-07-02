@@ -82,7 +82,6 @@ const FileTable = React.memo(({ userId, onFolderChange, refreshTrigger = 0 }: al
         }
     }, [files, currentTab]);
 
-    // Memoize handlers
     const Fetchdata = useCallback(async () => {
         setLoading(true);
         try {
