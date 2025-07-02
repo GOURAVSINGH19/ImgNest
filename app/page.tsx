@@ -11,7 +11,6 @@ export default function Home() {
   return (
     <div className="w-screen h-screen bg-[#121212] text-amber-50 overflow-x-hidden">
       <Navbar />
-
       <main className="max-w-7xl mx-auto px-6 py-16">
         <div className="text-center mb-16">
           <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold mb-6">

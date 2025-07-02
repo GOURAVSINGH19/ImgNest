@@ -7,7 +7,6 @@ import { Avatar } from "@heroui/avatar";
 import { useState } from 'react';
 import Dropdown from './Dropdown/DropdownTab';
 import IMG from '@/public/undefined.jpeg';
-import ShowCLIToken from './Showmyclitoken';
 
 const Navbar = () => {
     const { user } = useUser();
